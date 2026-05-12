@@ -10,7 +10,9 @@ type Props = {
 };
 
 export default function ReplayClient({ comparisons }: Props) {
-  const [selectedIdx, setSelectedIdx] = useState(0);
+  const [selectedIdx, setSelectedIdx] = useState<number>(() =>
+    Math.max(0, Math.min(2, comparisons.length - 1)),
+  );
   const selected = comparisons[selectedIdx];
 
   return (

@@ -430,3 +430,36 @@ working with AI coding tools.
 - What I'd do differently:
   - keep README documentation bounded and engineering-focused so the
     demo is understandable without overstating production readiness
+
+## Post-Phase 10 — Visual polish pass
+- Status: completed
+- Scope:
+  - performed visual polish after Phase 10
+  - reduced homepage text density
+  - made mock-demo boundaries more compact while preserving all five
+    boundary statements
+  - converted System Approach into compact step cards
+  - tightened demo walkthrough copy while preserving case semantics
+  - improved replay presentation by defaulting to Case C, emphasizing
+    potential regression, and moving interpretation before raw JSON
+- Decisions:
+  - treated this as visual polish only, not a new functional phase
+  - did not modify data, reducer, validator, tests, README, or workflow
+    behavior
+  - kept no-PHI / no-real-LLM / no-production-system boundary text intact
+  - kept Replay data semantics unchanged
+- Commands run:
+  - npm run typecheck
+  - npm run validate:mock
+  - npm run test
+  - npm run build
+- Results:
+  - typecheck passed
+  - validate:mock passed for 3 cases and 1 replay run
+  - reducer tests passed 9/9
+  - build passed
+- Stuck points:
+  - none
+- What I'd do differently:
+  - separate functional completion from visual polish so UI refinement
+    does not risk changing validated workflow behavior

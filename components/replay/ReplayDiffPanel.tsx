@@ -15,31 +15,29 @@ function changedFields(diff: ReplayCaseComparison["diff"]): string[] {
 
 export default function ReplayDiffPanel({ comparison }: Props) {
   const fields = changedFields(comparison.diff);
+  const isRegression = comparison.diff.potentialRegression;
 
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
-        Diff Panel — {comparison.caseTitle}
-      </h2>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div>
-          <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Baseline output
-          </h3>
-          <pre className="overflow-x-auto rounded-md border border-slate-200 bg-slate-50 p-3 text-xs text-slate-800">
-            {JSON.stringify(comparison.baseline, null, 2)}
-          </pre>
-        </div>
-        <div>
-          <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Candidate output
-          </h3>
-          <pre className="overflow-x-auto rounded-md border border-slate-200 bg-slate-50 p-3 text-xs text-slate-800">
-            {JSON.stringify(comparison.candidate, null, 2)}
-          </pre>
-        </div>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
+          Diff Panel &mdash; {comparison.caseTitle}
+        </h2>
+        {isRegression && (
+          <span className="inline-flex items-center rounded-md border border-rose-200 bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-800">
+            Potential regression
+          </span>
+        )}
       </div>
-      <div className="mt-3 space-y-3 border-t border-slate-100 pt-3">
+
+      <div className="space-y-3">
+        <div className="rounded-md border border-slate-100 bg-slate-50/60 p-3">
+          <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Interpretation
+          </h3>
+          <p className="text-sm text-slate-800">{comparison.diff.summary}</p>
+        </div>
+
         <div>
           <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
             Changed fields
@@ -47,20 +45,41 @@ export default function ReplayDiffPanel({ comparison }: Props) {
           {fields.length === 0 ? (
             <p className="text-sm text-slate-500">No changed fields.</p>
           ) : (
-            <ul className="list-inside list-disc space-y-0.5 text-sm text-slate-700">
+            <div className="flex flex-wrap gap-1.5">
               {fields.map((f) => (
-                <li key={f}>
-                  <code>{f}</code>
-                </li>
+                <span
+                  key={f}
+                  className="inline-flex items-center rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 font-mono text-xs text-amber-800"
+                >
+                  {f}
+                </span>
               ))}
-            </ul>
+            </div>
           )}
         </div>
+
         <div>
           <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Interpretation
+            Baseline / Candidate output
           </h3>
-          <p className="text-sm text-slate-700">{comparison.diff.summary}</p>
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+            <div>
+              <p className="mb-1 text-[11px] uppercase tracking-wide text-slate-400">
+                Baseline
+              </p>
+              <pre className="overflow-x-auto rounded-md border border-slate-200 bg-slate-50 p-3 text-xs text-slate-800">
+                {JSON.stringify(comparison.baseline, null, 2)}
+              </pre>
+            </div>
+            <div>
+              <p className="mb-1 text-[11px] uppercase tracking-wide text-slate-400">
+                Candidate
+              </p>
+              <pre className="overflow-x-auto rounded-md border border-slate-200 bg-slate-50 p-3 text-xs text-slate-800">
+                {JSON.stringify(comparison.candidate, null, 2)}
+              </pre>
+            </div>
+          </div>
         </div>
       </div>
     </section>

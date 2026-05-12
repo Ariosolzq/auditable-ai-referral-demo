@@ -8,11 +8,11 @@ export default function ProblemSection() {
           documents, eligibility records, payer fields, and external sources.
           Manual review can be slow, inconsistent, and difficult to audit.
         </p>
-        <p>
+        <blockquote className="border-l-4 border-sky-300 bg-sky-50/60 px-4 py-3 text-sm text-slate-800">
           The problem is not simply lack of AI. The real problem is scattered
           evidence, inconsistent judgment, weak traceability, and limited
           replay capability.
-        </p>
+        </blockquote>
       </div>
     </section>
   );

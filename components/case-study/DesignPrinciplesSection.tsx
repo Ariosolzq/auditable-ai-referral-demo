@@ -33,19 +33,17 @@ export default function DesignPrinciplesSection() {
         {principles.map((p, i) => (
           <div
             key={p.title}
-            className="rounded-md border border-slate-100 bg-slate-50/50 p-3"
+            className="rounded-md border border-slate-200 bg-slate-50/70 p-4"
           >
-            <div className="flex items-start gap-2">
-              <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-xs font-semibold text-slate-700">
+            <div className="mb-2 flex items-center gap-2">
+              <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white">
                 {i + 1}
               </span>
-              <div>
-                <h3 className="text-sm font-semibold text-slate-900">
-                  {p.title}
-                </h3>
-                <p className="mt-1 text-sm text-slate-700">{p.detail}</p>
-              </div>
+              <h3 className="text-sm font-semibold text-slate-900">
+                {p.title}
+              </h3>
             </div>
+            <p className="text-sm text-slate-600">{p.detail}</p>
           </div>
         ))}
       </div>

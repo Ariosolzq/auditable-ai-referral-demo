@@ -13,21 +13,21 @@ const caseEntries: CaseEntry[] = [
     title: "Case A",
     subtitle: "Low-risk auto-accept",
     description:
-      "Deterministic rule produces ACCEPT with auto_accept routing. LLM advisory is skipped. No human review required; the system auto-finalizes the decision.",
+      "Rule produces ACCEPT with auto_accept routing. LLM advisory is skipped. No human review required.",
   },
   {
     id: "case-b",
     title: "Case B",
     subtitle: "Missing physician order → human review",
     description:
-      "Rule decision is NEEDS_REVIEW due to a blocking missing physician order. LLM advisory is generated with evidence-bound summaries and risk flags. Reviewer confirms or overrides to finalize.",
+      "Missing physician order triggers NEEDS_REVIEW. Evidence-bound LLM advisory accompanies the case. Reviewer confirms or overrides.",
   },
   {
     id: "case-c",
     title: "Case C",
     subtitle: "Rule REJECT → human override",
     description:
-      "Rule decision is REJECT but policy requires human confirmation before finalization. Reviewer can override to ACCEPT; the override and final decision are appended to the audit trail.",
+      "Rule rejects; policy requires human confirmation. Override to ACCEPT appends override and final-decision events to the audit trail.",
   },
 ];
 

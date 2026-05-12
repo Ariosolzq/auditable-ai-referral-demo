@@ -2,12 +2,12 @@ import Link from "next/link";
 
 export default function HeroSection() {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-      <div className="space-y-3">
-        <h1 className="text-2xl font-semibold text-slate-900 sm:text-3xl">
+    <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+      <div className="max-w-3xl space-y-3">
+        <h1 className="text-3xl font-semibold text-slate-900 sm:text-4xl">
           Auditable AI-Assisted Referral Review Workflow
         </h1>
-        <p className="text-slate-700">
+        <p className="text-base text-slate-600 sm:text-lg">
           A frontend-only interactive demo of a governed referral intake
           workflow. Built with safe mock data only &mdash; no real PHI, no real
           LLM API, no production systems.
