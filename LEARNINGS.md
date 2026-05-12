@@ -161,7 +161,35 @@ working with AI coding tools.
     duplication becomes difficult to maintain
 
 ## Phase 5 — Evidence binding interaction
-- Status: not started
+- Status: completed
+- Started: 2026-05-12
+- Completed: 2026-05-12
+- Scope:
+  - added evidence-binding interactions to the case detail workspace
+  - added CaseWorkspaceClient as the minimal client boundary
+  - wired rule reason codes, missing fields, conflict flags, routing
+    reason codes, LLM evidence summaries, LLM missing field analysis,
+    and LLM risk flags to EvidencePanel highlighting
+  - added Clear selection
+- Decisions:
+  - kept app/cases/[caseId]/page.tsx as a server component
+  - used useState only for selectedEvidenceIds
+  - did not create reducer, eventFactory, or evidenceSelectors
+  - selected evidence replaces previous selection instead of accumulating
+  - evidence records are highlight targets, not clickable triggers
+  - only supporting evidence chips are clickable, not entire rows
+  - kept audit timeline static; audit event selection deferred to Phase 6
+  - kept human review static; submit/override/reset deferred to Phase 7a
+- Commands run:
+  - npm run typecheck
+  - npm run validate:mock
+  - npm run build
+- Stuck points:
+  - client boundary needed to be controlled so the page remained
+    server-rendered
+- What I'd do differently:
+  - keep client boundaries small when adding interaction to mostly
+    server-rendered pages
 
 ## Phase 6 — Audit event interaction
 - Status: not started

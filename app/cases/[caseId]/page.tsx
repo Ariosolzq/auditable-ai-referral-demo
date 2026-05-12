@@ -1,13 +1,6 @@
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
-import AuditEventPayloadPanel from "@/components/workflow/AuditEventPayloadPanel";
-import AuditTimeline from "@/components/workflow/AuditTimeline";
-import EvidencePanel from "@/components/workflow/EvidencePanel";
-import HumanReviewPanel from "@/components/workflow/HumanReviewPanel";
-import LLMAdvisoryCard from "@/components/workflow/LLMAdvisoryCard";
-import NormalizedFieldsCard from "@/components/workflow/NormalizedFieldsCard";
-import ReferralSummaryCard from "@/components/workflow/ReferralSummaryCard";
-import RuleEvaluationCard from "@/components/workflow/RuleEvaluationCard";
+import CaseWorkspaceClient from "@/components/workflow/CaseWorkspaceClient";
 import { cases } from "@/data/cases";
 import type { ReferralCase } from "@/types/referral";
 
@@ -131,24 +124,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.2fr_0.9fr]">
-        <div className="space-y-4">
-          <ReferralSummaryCard referralSummary={caseData.referralSummary} />
-          <NormalizedFieldsCard
-            normalizedFields={caseData.normalizedFields}
-          />
-          <EvidencePanel evidenceRecords={caseData.evidenceRecords} />
-        </div>
-        <div className="space-y-4">
-          <RuleEvaluationCard ruleEvaluation={caseData.ruleEvaluation} />
-          <LLMAdvisoryCard llmAdvisory={caseData.llmAdvisory} />
-          <HumanReviewPanel humanReview={caseData.humanReview} />
-        </div>
-        <div className="space-y-4">
-          <AuditTimeline auditEvents={caseData.auditEvents} />
-          <AuditEventPayloadPanel auditEvents={caseData.auditEvents} />
-        </div>
-      </div>
+      <CaseWorkspaceClient caseData={caseData} />
     </div>
   );
 }

@@ -1,8 +1,12 @@
+"use client";
+
 import type { ReactNode } from "react";
 import type { EvidenceRecord } from "@/types/referral";
 
 type Props = {
   evidenceRecords: EvidenceRecord[];
+  selectedEvidenceIds?: string[];
+  onClearSelection?: () => void;
 };
 
 function Badge({
@@ -28,41 +32,73 @@ function confidenceTone(c: EvidenceRecord["confidence"]): string {
   return "bg-slate-100 text-slate-700 border-slate-200";
 }
 
-export default function EvidencePanel({ evidenceRecords }: Props) {
+export default function EvidencePanel({
+  evidenceRecords,
+  selectedEvidenceIds = [],
+  onClearSelection,
+}: Props) {
+  const selectedCount = selectedEvidenceIds.length;
+  const selectedSet = new Set(selectedEvidenceIds);
+
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
-        Evidence Package
-      </h2>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
+          Evidence Package
+        </h2>
+        {selectedCount > 0 && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-500">
+              Selected evidence: {selectedCount}
+            </span>
+            {onClearSelection && (
+              <button
+                type="button"
+                onClick={onClearSelection}
+                className="inline-flex items-center rounded-md border border-slate-200 bg-white px-2 py-0.5 text-xs font-medium text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
+              >
+                Clear selection ({selectedCount})
+              </button>
+            )}
+          </div>
+        )}
+      </div>
       <ul className="space-y-2">
-        {evidenceRecords.map((e) => (
-          <li
-            key={e.id}
-            className="rounded-md border border-slate-100 bg-slate-50/50 p-3 text-sm"
-          >
-            <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
-              <code className="text-xs text-slate-600">{e.id}</code>
-              <div className="flex gap-1">
-                <Badge className={confidenceTone(e.confidence)}>
-                  {e.confidence}
-                </Badge>
-                {e.usedBy.map((u) => (
-                  <Badge
-                    key={u}
-                    className="border-slate-200 bg-slate-100 text-slate-700"
-                  >
-                    {u}
+        {evidenceRecords.map((e) => {
+          const selected = selectedSet.has(e.id);
+          return (
+            <li
+              key={e.id}
+              className={`rounded-md border p-3 text-sm transition ${
+                selected
+                  ? "border-sky-300 bg-sky-50 ring-1 ring-sky-200"
+                  : "border-slate-100 bg-slate-50/50"
+              }`}
+            >
+              <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+                <code className="text-xs text-slate-600">{e.id}</code>
+                <div className="flex gap-1">
+                  <Badge className={confidenceTone(e.confidence)}>
+                    {e.confidence}
                   </Badge>
-                ))}
+                  {e.usedBy.map((u) => (
+                    <Badge
+                      key={u}
+                      className="border-slate-200 bg-slate-100 text-slate-700"
+                    >
+                      {u}
+                    </Badge>
+                  ))}
+                </div>
               </div>
-            </div>
-            <div className="font-medium text-slate-900">{e.label}</div>
-            <div className="text-slate-700">{String(e.value)}</div>
-            <div className="mt-1 text-xs text-slate-500">
-              field: <code>{e.field}</code> · {e.sourceType} · {e.sourceName}
-            </div>
-          </li>
-        ))}
+              <div className="font-medium text-slate-900">{e.label}</div>
+              <div className="text-slate-700">{String(e.value)}</div>
+              <div className="mt-1 text-xs text-slate-500">
+                field: <code>{e.field}</code> · {e.sourceType} · {e.sourceName}
+              </div>
+            </li>
+          );
+        })}
       </ul>
     </section>
   );

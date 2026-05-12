@@ -1,8 +1,11 @@
+"use client";
+
 import type { ReactNode } from "react";
 import type { LLMAdvisory } from "@/types/referral";
 
 type Props = {
   llmAdvisory: LLMAdvisory;
+  onSelectEvidence?: (ids: string[]) => void;
 };
 
 function Badge({
@@ -42,22 +45,48 @@ function confidenceTone(c: "low" | "medium" | "high"): string {
   return "bg-slate-100 text-slate-700 border-slate-200";
 }
 
-function SupportingEvidence({ ids }: { ids: string[] }) {
+function SupportingEvidence({
+  ids,
+  onSelectEvidence,
+}: {
+  ids: string[];
+  onSelectEvidence?: (ids: string[]) => void;
+}) {
   if (ids.length === 0) return null;
+  if (!onSelectEvidence) {
+    return (
+      <div className="mt-1 text-xs text-slate-500">
+        Evidence:{" "}
+        {ids.map((id, i) => (
+          <span key={id}>
+            <code>{id}</code>
+            {i < ids.length - 1 ? ", " : ""}
+          </span>
+        ))}
+      </div>
+    );
+  }
   return (
-    <div className="mt-1 text-xs text-slate-500">
-      Evidence:{" "}
-      {ids.map((id, i) => (
-        <span key={id}>
-          <code>{id}</code>
-          {i < ids.length - 1 ? ", " : ""}
-        </span>
+    <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
+      <span>Evidence:</span>
+      {ids.map((id) => (
+        <button
+          key={id}
+          type="button"
+          onClick={() => onSelectEvidence(ids)}
+          className="inline-flex items-center rounded-md border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-700 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-sky-500"
+        >
+          {id}
+        </button>
       ))}
     </div>
   );
 }
 
-export default function LLMAdvisoryCard({ llmAdvisory }: Props) {
+export default function LLMAdvisoryCard({
+  llmAdvisory,
+  onSelectEvidence,
+}: Props) {
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">
@@ -151,7 +180,10 @@ export default function LLMAdvisoryCard({ llmAdvisory }: Props) {
                       </Badge>
                     </div>
                     <p className="text-slate-700">{s.summary}</p>
-                    <SupportingEvidence ids={s.supportingEvidenceIds} />
+                    <SupportingEvidence
+                      ids={s.supportingEvidenceIds}
+                      onSelectEvidence={onSelectEvidence}
+                    />
                   </li>
                 ))}
               </ul>
@@ -178,7 +210,10 @@ export default function LLMAdvisoryCard({ llmAdvisory }: Props) {
                       </Badge>
                     </div>
                     <p className="text-slate-700">{m.explanation}</p>
-                    <SupportingEvidence ids={m.supportingEvidenceIds} />
+                    <SupportingEvidence
+                      ids={m.supportingEvidenceIds}
+                      onSelectEvidence={onSelectEvidence}
+                    />
                   </li>
                 ))}
               </ul>
@@ -205,7 +240,10 @@ export default function LLMAdvisoryCard({ llmAdvisory }: Props) {
                       </Badge>
                     </div>
                     <p className="text-slate-700">{r.explanation}</p>
-                    <SupportingEvidence ids={r.supportingEvidenceIds} />
+                    <SupportingEvidence
+                      ids={r.supportingEvidenceIds}
+                      onSelectEvidence={onSelectEvidence}
+                    />
                   </li>
                 ))}
               </ul>

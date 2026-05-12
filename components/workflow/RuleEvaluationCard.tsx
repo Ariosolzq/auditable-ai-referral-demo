@@ -1,3 +1,5 @@
+"use client";
+
 import type { ReactNode } from "react";
 import type {
   ConflictFlag,
@@ -8,6 +10,7 @@ import type {
 
 type Props = {
   ruleEvaluation: RuleEvaluation;
+  onSelectEvidence?: (ids: string[]) => void;
 };
 
 function Badge({
@@ -49,22 +52,51 @@ function severityTone(s: string): string {
   return "bg-slate-100 text-slate-700 border-slate-200";
 }
 
-function SupportingEvidence({ ids }: { ids: string[] }) {
+function SupportingEvidence({
+  ids,
+  onSelectEvidence,
+}: {
+  ids: string[];
+  onSelectEvidence?: (ids: string[]) => void;
+}) {
   if (ids.length === 0) return null;
+  if (!onSelectEvidence) {
+    return (
+      <div className="mt-1 text-xs text-slate-500">
+        Supporting evidence:{" "}
+        {ids.map((id, i) => (
+          <span key={id}>
+            <code>{id}</code>
+            {i < ids.length - 1 ? ", " : ""}
+          </span>
+        ))}
+      </div>
+    );
+  }
   return (
-    <div className="mt-1 text-xs text-slate-500">
-      Supporting evidence:{" "}
-      {ids.map((id, i) => (
-        <span key={id}>
-          <code>{id}</code>
-          {i < ids.length - 1 ? ", " : ""}
-        </span>
+    <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
+      <span>Supporting evidence:</span>
+      {ids.map((id) => (
+        <button
+          key={id}
+          type="button"
+          onClick={() => onSelectEvidence(ids)}
+          className="inline-flex items-center rounded-md border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-700 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-sky-500"
+        >
+          {id}
+        </button>
       ))}
     </div>
   );
 }
 
-function ReasonRow({ item }: { item: ReasonCode }) {
+function ReasonRow({
+  item,
+  onSelectEvidence,
+}: {
+  item: ReasonCode;
+  onSelectEvidence?: (ids: string[]) => void;
+}) {
   return (
     <li className="rounded-md border border-slate-100 bg-slate-50/50 p-3 text-sm">
       <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
@@ -73,12 +105,21 @@ function ReasonRow({ item }: { item: ReasonCode }) {
       </div>
       <div className="font-medium text-slate-900">{item.label}</div>
       <p className="text-slate-700">{item.description}</p>
-      <SupportingEvidence ids={item.supportingEvidenceIds} />
+      <SupportingEvidence
+        ids={item.supportingEvidenceIds}
+        onSelectEvidence={onSelectEvidence}
+      />
     </li>
   );
 }
 
-function MissingFieldRow({ item }: { item: MissingField }) {
+function MissingFieldRow({
+  item,
+  onSelectEvidence,
+}: {
+  item: MissingField;
+  onSelectEvidence?: (ids: string[]) => void;
+}) {
   return (
     <li className="rounded-md border border-slate-100 bg-slate-50/50 p-3 text-sm">
       <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
@@ -91,12 +132,21 @@ function MissingFieldRow({ item }: { item: MissingField }) {
           reason code: <code>{item.reasonCode}</code>
         </div>
       )}
-      <SupportingEvidence ids={item.supportingEvidenceIds} />
+      <SupportingEvidence
+        ids={item.supportingEvidenceIds}
+        onSelectEvidence={onSelectEvidence}
+      />
     </li>
   );
 }
 
-function ConflictRow({ item }: { item: ConflictFlag }) {
+function ConflictRow({
+  item,
+  onSelectEvidence,
+}: {
+  item: ConflictFlag;
+  onSelectEvidence?: (ids: string[]) => void;
+}) {
   return (
     <li className="rounded-md border border-slate-100 bg-slate-50/50 p-3 text-sm">
       <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
@@ -104,12 +154,18 @@ function ConflictRow({ item }: { item: ConflictFlag }) {
         <Badge className={severityTone(item.severity)}>{item.severity}</Badge>
       </div>
       <p className="text-slate-700">{item.description}</p>
-      <SupportingEvidence ids={item.supportingEvidenceIds} />
+      <SupportingEvidence
+        ids={item.supportingEvidenceIds}
+        onSelectEvidence={onSelectEvidence}
+      />
     </li>
   );
 }
 
-export default function RuleEvaluationCard({ ruleEvaluation }: Props) {
+export default function RuleEvaluationCard({
+  ruleEvaluation,
+  onSelectEvidence,
+}: Props) {
   const re = ruleEvaluation;
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
@@ -139,7 +195,11 @@ export default function RuleEvaluationCard({ ruleEvaluation }: Props) {
         ) : (
           <ul className="space-y-2">
             {re.reasonCodes.map((r) => (
-              <ReasonRow key={r.code} item={r} />
+              <ReasonRow
+                key={r.code}
+                item={r}
+                onSelectEvidence={onSelectEvidence}
+              />
             ))}
           </ul>
         )}
@@ -152,7 +212,11 @@ export default function RuleEvaluationCard({ ruleEvaluation }: Props) {
           </h3>
           <ul className="space-y-2">
             {re.missingFields.map((m) => (
-              <MissingFieldRow key={m.field} item={m} />
+              <MissingFieldRow
+                key={m.field}
+                item={m}
+                onSelectEvidence={onSelectEvidence}
+              />
             ))}
           </ul>
         </div>
@@ -165,7 +229,11 @@ export default function RuleEvaluationCard({ ruleEvaluation }: Props) {
           </h3>
           <ul className="space-y-2">
             {re.conflictFlags.map((cf) => (
-              <ConflictRow key={cf.code} item={cf} />
+              <ConflictRow
+                key={cf.code}
+                item={cf}
+                onSelectEvidence={onSelectEvidence}
+              />
             ))}
           </ul>
         </div>
@@ -180,7 +248,11 @@ export default function RuleEvaluationCard({ ruleEvaluation }: Props) {
         ) : (
           <ul className="space-y-2">
             {re.routingReasonCodes.map((r) => (
-              <ReasonRow key={r.code} item={r} />
+              <ReasonRow
+                key={r.code}
+                item={r}
+                onSelectEvidence={onSelectEvidence}
+              />
             ))}
           </ul>
         )}
