@@ -50,7 +50,37 @@ working with AI coding tools.
 - What I'd do differently: nothing for this phase.
 
 ## Phase 2 — Mock cases + validator
-- Status: not started
+- Status: completed
+- Started: 2026-05-12
+- Completed: 2026-05-12
+- Scope:
+  - created data/cases.ts with Case A, Case B, and Case C
+  - created scripts/validate-mock-data.ts
+  - added validate:mock script and tsx devDependency
+- Decisions:
+  - Phase 2 creates cases only; data/replayRuns.ts is deferred to Phase 8.
+  - Validator is cases-only for now; replay validation is deferred to Phase 8.
+  - Case A demonstrates low-risk auto-accept with LLMReviewSkipped.
+  - Case B demonstrates missing physician order leading to human review.
+  - Case B explicitly includes ELIGIBILITY_ACTIVE as rule evidence; the case
+    routes to review because physician_order is missing, not because
+    eligibility is unknown.
+  - Case C demonstrates rule REJECT → human_review_required → later human
+    override.
+  - Validator checks evidence reference integrity, audit timeline shape,
+    causationEventId ordering, PHI-like text, and usedBy consistency.
+- Stuck points:
+  - Replay validation scope was ambiguous; resolved by deferring
+    replayRuns.ts and replay-specific validation to Phase 8.
+  - Case B initially had eligibility evidence used only by LLM; resolved
+    by adding ELIGIBILITY_ACTIVE to rule reason codes and updating usedBy.
+- Commands run:
+  - npm run typecheck
+  - npm run validate:mock
+  - npm run build
+- What I'd do differently:
+  - Keep Phase 2 scoped to cases and validator; avoid introducing replay
+    fixtures too early.
 
 ## Phase 3 — Case Selector
 - Status: not started
