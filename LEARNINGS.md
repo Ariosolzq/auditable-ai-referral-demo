@@ -277,7 +277,43 @@ working with AI coding tools.
     behavior
 
 ## Phase 7b — Reducer tests
-- Status: not started
+- Status: completed
+- Started: 2026-05-12
+- Completed: 2026-05-12
+- Scope:
+  - added reducer tests in tests/caseReducer.test.ts
+  - added Vitest alias resolution for @ imports in vitest.config.ts
+  - verified SUBMIT_REVIEW confirm, override, no-op guards, RESET_CASE,
+    and UI selection actions
+- Decisions:
+  - tests use explicit expected assertions provided as oracle
+  - tests do not use snapshots
+  - tests avoid exact event id assertions
+  - tests use fake timers for deterministic submittedAt and event
+    timestamps
+  - tests verify audit event type order and causationEventId
+    relationships
+  - tests verify no-op guards using reference equality
+  - tests verify RESET_CASE clone independence
+  - tests validate selectedAuditEventId resets to the first audit event
+    id per Phase 7a decision
+  - no production reducer behavior was changed during Phase 7b
+- Commands run:
+  - npm run typecheck
+  - npm run validate:mock
+  - npm run test
+  - npm run build
+- Results:
+  - 9/9 reducer tests passed
+  - no reducer bugs were exposed
+  - Vitest initially failed due to @ alias resolution; resolved by
+    adding resolve.alias to vitest.config.ts
+- Stuck points:
+  - Vitest did not automatically resolve tsconfig @/* aliases; fixed
+    with explicit alias config
+- What I'd do differently:
+  - configure test runner path aliases before adding tests that import
+    application modules
 
 ## Phase 8 — Replay & Evaluation
 - Status: not started
