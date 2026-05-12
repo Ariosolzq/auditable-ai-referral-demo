@@ -27,7 +27,27 @@ working with AI coding tools.
 - What I'd do differently: nothing for this phase.
 
 ## Phase 1 — Type system
-- Status: not started
+- Status: completed
+- Started: 2026-05-12
+- Completed: 2026-05-12
+- Scope: created types/referral.ts and types/replay.ts only.
+- Decisions:
+  - Kept Phase 1 declarations-only.
+  - No type guards, helper functions, runtime validators, or zod schemas.
+  - Preserved reserved/transient members from spec verbatim
+    (ReferralStatus "needs_more_information"; WorkflowStage
+    "llm_review_skipped" and "final_decision_recorded").
+  - Kept request_more_info out of MVP types: ReviewerAction is
+    "confirm" | "override" only; FinalDecisionValue is "ACCEPT" | "REJECT"
+    only. needs_more_evidence remains in RoutingDecision because replay
+    under policy_v2 produces it.
+  - Kept AuditEvent.payload as Record<string, unknown>; per-eventType
+    payload discrimination is deferred to the event factory in Phase 7a.
+  - ReplayOutput.reasonCodes and riskFlags are string[] by design — replay
+    compares version-level deltas, not full evidence binding.
+- Stuck points: none.
+- How resolved: n/a.
+- What I'd do differently: nothing for this phase.
 
 ## Phase 2 — Mock cases + validator
 - Status: not started
