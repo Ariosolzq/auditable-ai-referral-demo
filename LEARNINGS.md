@@ -395,4 +395,38 @@ working with AI coding tools.
     rather than overclaimed
 
 ## Phase 10 — Polish / README / Deploy
-- Status: not started
+- Status: completed
+- Started: 2026-05-12
+- Completed: 2026-05-12
+- Scope:
+  - replaced README.md stub with full project documentation
+  - documented demo boundaries, routes, architecture, implemented
+    interactions, mock data safety, replay evaluation, local development,
+    validation commands, Vercel Hobby deployment, and interview framing
+  - kept homepage polish out of scope for this phase
+- Decisions:
+  - kept Phase 10 as documentation and deployment readiness only
+  - did not modify app behavior, reducer, mock data, replay data,
+    validator, tests, or config
+  - kept no-PHI / no-real-LLM / frontend-only / no-production-system
+    boundaries explicit
+  - used Pre-deploy Checklist rather than permanent all-checked claims
+  - avoided production/autonomous AI claims, HIPAA compliance claims,
+    and real healthcare integration claims
+  - did not add screenshots, license section, GitHub URL placeholder,
+    vercel.json, CI workflow, or Claude Code attribution
+- Commands run:
+  - npm run typecheck
+  - npm run validate:mock
+  - npm run test
+  - npm run build
+- Results:
+  - typecheck passed
+  - validate:mock passed for 3 cases and 1 replay run
+  - reducer tests passed 9/9
+  - build passed with case routes SSG and other routes static
+- Stuck points:
+  - none
+- What I'd do differently:
+  - keep README documentation bounded and engineering-focused so the
+    demo is understandable without overstating production readiness
