@@ -42,17 +42,26 @@ export default function DemoWalkthroughSection() {
         LLM-advisory, human-review boundaries.
       </p>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {caseEntries.map((c) => (
-          <Link
-            key={c.id}
-            href={`/cases/${c.id}`}
-            className="block rounded-md border border-slate-200 bg-slate-50/50 p-3 shadow-sm transition hover:border-slate-300 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
-          >
-            <h3 className="text-sm font-semibold text-slate-900">{c.title}</h3>
-            <p className="text-xs text-slate-500">{c.subtitle}</p>
-            <p className="mt-2 text-sm text-slate-700">{c.description}</p>
-          </Link>
-        ))}
+        {caseEntries.map((c) => {
+          const isRecommended = c.id === "case-c";
+          const cardClass = isRecommended
+            ? "relative block rounded-md border-2 border-amber-300 bg-amber-50/40 p-3 shadow-sm transition hover:bg-amber-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
+            : "block rounded-md border border-slate-200 bg-slate-50/50 p-3 shadow-sm transition hover:border-slate-300 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500";
+          return (
+            <Link key={c.id} href={`/cases/${c.id}`} className={cardClass}>
+              {isRecommended && (
+                <span className="absolute -top-2 right-3 inline-flex items-center rounded-md border border-amber-300 bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800">
+                  Recommended walkthrough
+                </span>
+              )}
+              <h3 className="text-sm font-semibold text-slate-900">
+                {c.title}
+              </h3>
+              <p className="text-xs text-slate-500">{c.subtitle}</p>
+              <p className="mt-2 text-sm text-slate-700">{c.description}</p>
+            </Link>
+          );
+        })}
       </div>
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Link

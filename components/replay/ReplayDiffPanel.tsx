@@ -59,15 +59,20 @@ export default function ReplayDiffPanel({ comparison }: Props) {
         </div>
 
         <div>
-          <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Baseline / Candidate output
-          </h3>
+          <div className="mb-1 flex items-baseline gap-2">
+            <h3 className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+              Baseline / Candidate output
+            </h3>
+            <span className="text-[11px] italic text-slate-400">
+              supporting detail
+            </span>
+          </div>
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
             <div>
               <p className="mb-1 text-[11px] uppercase tracking-wide text-slate-400">
                 Baseline
               </p>
-              <pre className="overflow-x-auto rounded-md border border-slate-200 bg-slate-50 p-3 text-xs text-slate-800">
+              <pre className="overflow-x-auto rounded-md border border-slate-200 bg-slate-50 p-3 text-[11px] leading-relaxed text-slate-700">
                 {JSON.stringify(comparison.baseline, null, 2)}
               </pre>
             </div>
@@ -75,7 +80,7 @@ export default function ReplayDiffPanel({ comparison }: Props) {
               <p className="mb-1 text-[11px] uppercase tracking-wide text-slate-400">
                 Candidate
               </p>
-              <pre className="overflow-x-auto rounded-md border border-slate-200 bg-slate-50 p-3 text-xs text-slate-800">
+              <pre className="overflow-x-auto rounded-md border border-slate-200 bg-slate-50 p-3 text-[11px] leading-relaxed text-slate-700">
                 {JSON.stringify(comparison.candidate, null, 2)}
               </pre>
             </div>

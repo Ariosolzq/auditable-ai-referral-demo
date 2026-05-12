@@ -127,13 +127,16 @@ export default function ReplayComparisonTable({
             {comparisons.map((c, idx) => {
               const isSelected = idx === selectedIdx;
               const isRegression = c.diff.potentialRegression;
-              const rowTone = isSelected
-                ? "bg-sky-50 ring-1 ring-sky-200"
-                : isRegression
-                  ? "bg-rose-50/40 hover:bg-rose-50/70"
-                  : "hover:bg-slate-50/50";
+              const rowTone =
+                isSelected && isRegression
+                  ? "bg-rose-50 ring-1 ring-rose-300"
+                  : isSelected
+                    ? "bg-sky-50 ring-1 ring-sky-200"
+                    : isRegression
+                      ? "bg-rose-50 hover:bg-rose-100"
+                      : "hover:bg-slate-50/50";
               const firstCellAccent = isRegression
-                ? "border-l-4 border-l-rose-300 pl-2"
+                ? "border-l-4 border-l-rose-400 pl-2"
                 : "";
               return (
                 <tr
