@@ -83,7 +83,37 @@ working with AI coding tools.
     fixtures too early.
 
 ## Phase 3 — Case Selector
-- Status: not started
+- Status: completed
+- Started: 2026-05-12
+- Completed: 2026-05-12
+- Scope:
+  - created components/demo/CaseCard.tsx
+  - created components/demo/CaseSelectorGrid.tsx
+  - replaced the /demo placeholder with a read-only Case Selector page
+  - performed structural verification using npm run dev and rendered HTML
+    inspection
+- Decisions:
+  - kept Phase 3 server-component only; no useState/useReducer
+  - kept badge styling inline inside CaseCard instead of creating shared
+    StatusBadge
+  - rendered technical state values verbatim rather than humanizing them
+  - always rendered the Final field, using "—" when finalDecision is absent
+  - displayed top rule reason codes by severity and routing reason chips
+    for high/blocking routing reasons
+  - kept Case Detail, evidence highlighting, audit interaction, reducer,
+    and replay out of scope
+- Verification:
+  - npm run typecheck passed
+  - npm run validate:mock passed
+  - npm run build passed
+  - npm run dev structural verification passed
+  - /cases/case-a, /cases/case-b, /cases/case-c returned 200
+- Stuck points:
+  - no code blockers
+  - true pixel-level visual QA still requires manual browser review
+- What I'd do differently:
+  - shared badge primitives can be considered in Phase 4 if multiple pages
+    need them
 
 ## Phase 4 — Case Detail static UI
 - Status: not started
