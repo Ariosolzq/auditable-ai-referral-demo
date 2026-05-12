@@ -1,5 +1,7 @@
 import { cases } from "../data/cases";
+import { replayRuns } from "../data/replayRuns";
 import type { ReferralCase } from "../types/referral";
+import type { ReplayRun } from "../types/replay";
 
 type ValidationError = {
   caseId: string;
@@ -531,6 +533,99 @@ function checkPHIPII(cs: ReferralCase[]): void {
 }
 
 // ---------------------------------------------------------------------------
+// Replay check R1: ReplayOutput.reasonCodes and riskFlags must be string[]
+// ---------------------------------------------------------------------------
+function checkReplayReasonRiskAreStringArrays(run: ReplayRun): void {
+  for (const comp of run.comparisons) {
+    for (const which of ["baseline", "candidate"] as const) {
+      const out = comp[which];
+      if (!Array.isArray(out.reasonCodes)) {
+        fail(
+          comp.caseId,
+          `replay_${which}_reasonCodes_array`,
+          `${which}.reasonCodes is not an array`,
+        );
+      } else {
+        for (const r of out.reasonCodes) {
+          if (typeof r !== "string") {
+            fail(
+              comp.caseId,
+              `replay_${which}_reasonCodes_string`,
+              `${which}.reasonCodes contains a non-string entry`,
+            );
+            break;
+          }
+        }
+      }
+      if (!Array.isArray(out.riskFlags)) {
+        fail(
+          comp.caseId,
+          `replay_${which}_riskFlags_array`,
+          `${which}.riskFlags is not an array`,
+        );
+      } else {
+        for (const r of out.riskFlags) {
+          if (typeof r !== "string") {
+            fail(
+              comp.caseId,
+              `replay_${which}_riskFlags_string`,
+              `${which}.riskFlags contains a non-string entry`,
+            );
+            break;
+          }
+        }
+      }
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Replay check R2: requiresHumanReview consistent with routingDecision
+//   human_review_required -> true
+//   auto_accept / auto_reject / needs_more_evidence -> false
+// "failed" routing intentionally not asserted.
+// ---------------------------------------------------------------------------
+function checkReplayRequiresHumanReviewConsistency(run: ReplayRun): void {
+  for (const comp of run.comparisons) {
+    for (const which of ["baseline", "candidate"] as const) {
+      const out = comp[which];
+      let expected: boolean | null = null;
+      if (out.routingDecision === "human_review_required") {
+        expected = true;
+      } else if (
+        out.routingDecision === "auto_accept" ||
+        out.routingDecision === "auto_reject" ||
+        out.routingDecision === "needs_more_evidence"
+      ) {
+        expected = false;
+      }
+      if (expected !== null && out.requiresHumanReview !== expected) {
+        fail(
+          comp.caseId,
+          `replay_${which}_requires_human_review_consistency`,
+          `${which}.routingDecision="${out.routingDecision}" but requiresHumanReview=${out.requiresHumanReview} (expected ${expected})`,
+        );
+      }
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Replay check R3: replay data must not contain request_more_info
+// (spec §4.3: request_more_info is excluded from MVP)
+// ---------------------------------------------------------------------------
+function checkReplayNoRequestMoreInfo(run: ReplayRun): void {
+  const serialized = JSON.stringify(run);
+  if (serialized.includes("request_more_info")) {
+    fail(
+      "(replay)",
+      "replay_request_more_info_excluded",
+      "replay data contains the literal string 'request_more_info' which is excluded from MVP per spec §4.3",
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Entry point
 // ---------------------------------------------------------------------------
 function main(): void {
@@ -553,9 +648,17 @@ function main(): void {
   }
   checkPHIPII(cases);
 
+  for (const run of replayRuns) {
+    checkReplayReasonRiskAreStringArrays(run);
+    checkReplayRequiresHumanReviewConsistency(run);
+    checkReplayNoRequestMoreInfo(run);
+  }
+
   const caseIds = cases.map((c) => c.id).join(", ");
   if (errors.length === 0) {
-    console.log(`Mock data validation PASSED for ${cases.length} cases: ${caseIds}`);
+    console.log(
+      `Mock data validation PASSED for ${cases.length} cases (${caseIds}) and ${replayRuns.length} replay run(s)`,
+    );
     return;
   }
 

@@ -316,7 +316,48 @@ working with AI coding tools.
     application modules
 
 ## Phase 8 — Replay & Evaluation
-- Status: not started
+- Status: completed
+- Started: 2026-05-12
+- Completed: 2026-05-12
+- Scope:
+  - added static replay run data in data/replayRuns.ts
+  - implemented /replay page
+  - added replay components for version notes, summary cards, comparison
+    table, and diff panel
+  - added minimal replay validation to scripts/validate-mock-data.ts
+- Decisions:
+  - replay is static frontend mock data, not a replay execution engine
+  - replay does not mutate production case state
+  - replay does not call caseReducer or append audit events
+  - ReplayOutput.reasonCodes and riskFlags remain string[] code lists
+  - every comparison diff is tied to a specific PROJECT_SPEC
+    version-change note
+  - Case B remains human_review_required because the mock data lacks an
+    explicit recoverability signal
+  - Case C demonstrates the canonical replay regression risk:
+    human_review_required → needs_more_evidence due to stale eligibility
+    evidence
+  - request_more_info remains excluded from runtime and replay data
+- Validation:
+  - validator now checks replay reasonCodes/riskFlags are string arrays
+  - validator checks requiresHumanReview consistency with routingDecision
+  - validator checks replay data does not contain request_more_info
+- Commands run:
+  - npm run typecheck
+  - npm run validate:mock
+  - npm run test
+  - npm run build
+- Results:
+  - validate:mock passed for 3 cases and 1 replay run
+  - 9/9 reducer tests still passed
+  - /replay builds as a static page
+- Stuck points:
+  - PROJECT_SPEC section numbering differed from the Phase 8 instruction;
+    actual version notes were in §5.8, while §4.3 authorized
+    needs_more_evidence in replay candidates
+- What I'd do differently:
+  - keep replay diffs explicitly tied to version-change notes to avoid
+    invented policy/prompt improvements
 
 ## Phase 9 — Case Study Landing Page
 - Status: not started
