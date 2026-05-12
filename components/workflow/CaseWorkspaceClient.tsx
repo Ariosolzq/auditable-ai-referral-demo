@@ -17,6 +17,9 @@ type Props = {
 
 export default function CaseWorkspaceClient({ caseData }: Props) {
   const [selectedEvidenceIds, setSelectedEvidenceIds] = useState<string[]>([]);
+  const [selectedAuditEventId, setSelectedAuditEventId] = useState<
+    string | null
+  >(caseData.auditEvents[0]?.id ?? null);
 
   const handleSelectEvidence = (ids: string[]) => {
     setSelectedEvidenceIds(ids);
@@ -24,6 +27,10 @@ export default function CaseWorkspaceClient({ caseData }: Props) {
 
   const handleClearSelection = () => {
     setSelectedEvidenceIds([]);
+  };
+
+  const handleSelectAuditEvent = (eventId: string) => {
+    setSelectedAuditEventId(eventId);
   };
 
   return (
@@ -49,8 +56,15 @@ export default function CaseWorkspaceClient({ caseData }: Props) {
         <HumanReviewPanel humanReview={caseData.humanReview} />
       </div>
       <div className="space-y-4">
-        <AuditTimeline auditEvents={caseData.auditEvents} />
-        <AuditEventPayloadPanel auditEvents={caseData.auditEvents} />
+        <AuditTimeline
+          auditEvents={caseData.auditEvents}
+          selectedAuditEventId={selectedAuditEventId}
+          onSelectAuditEvent={handleSelectAuditEvent}
+        />
+        <AuditEventPayloadPanel
+          auditEvents={caseData.auditEvents}
+          selectedAuditEventId={selectedAuditEventId}
+        />
       </div>
     </div>
   );

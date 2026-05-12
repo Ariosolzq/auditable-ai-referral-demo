@@ -2,10 +2,18 @@ import type { AuditEvent } from "@/types/referral";
 
 type Props = {
   auditEvents: AuditEvent[];
+  selectedAuditEventId?: string | null;
 };
 
-export default function AuditEventPayloadPanel({ auditEvents }: Props) {
-  const event = auditEvents[0];
+export default function AuditEventPayloadPanel({
+  auditEvents,
+  selectedAuditEventId,
+}: Props) {
+  const selected = selectedAuditEventId
+    ? auditEvents.find((e) => e.id === selectedAuditEventId)
+    : undefined;
+  const event = selected ?? auditEvents[0];
+
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
@@ -48,10 +56,12 @@ export default function AuditEventPayloadPanel({ auditEvents }: Props) {
           </pre>
         </div>
       ) : (
-        <p className="text-sm text-slate-500">No audit events.</p>
+        <p className="text-sm text-slate-500">
+          Select an audit event to view its payload.
+        </p>
       )}
       <p className="mt-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
-        Event selection will be added in Phase 6.
+        Click an audit event to inspect its payload.
       </p>
     </section>
   );

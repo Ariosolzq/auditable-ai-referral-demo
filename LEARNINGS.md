@@ -192,7 +192,37 @@ working with AI coding tools.
     server-rendered pages
 
 ## Phase 6 — Audit event interaction
-- Status: not started
+- Status: completed
+- Started: 2026-05-12
+- Completed: 2026-05-12
+- Scope:
+  - added audit event selection to the case detail workspace
+  - made AuditTimeline rows selectable
+  - wired selected audit event to AuditEventPayloadPanel
+  - kept evidence selection independent from audit selection
+- Decisions:
+  - kept CaseWorkspaceClient as the client boundary and state owner
+  - used useState for selectedAuditEventId
+  - initialized selectedAuditEventId to the first audit event id
+  - added aria-pressed to audit event row buttons
+  - did not introduce reducer, eventFactory, statusMapping, or
+    evidenceSelectors
+  - did not mutate auditEvents or append events
+  - kept human review state transitions deferred to Phase 7a
+- Verification:
+  - npm run typecheck passed
+  - npm run validate:mock passed
+  - npm run build passed
+  - manual browser interaction check passed
+  - audit event selection updates Payload Preview
+  - audit selection does not clear evidence selection
+  - evidence selection does not change selected audit event
+- Stuck points:
+  - initial audit selection behavior was resolved by defaulting to the
+    first audit event instead of an empty placeholder
+- What I'd do differently:
+  - keep audit selection as UI state until workflow mutation requires a
+    reducer
 
 ## Phase 7a — Reducer implementation
 - Status: not started
