@@ -116,7 +116,49 @@ working with AI coding tools.
     need them
 
 ## Phase 4 — Case Detail static UI
-- Status: not started
+- Status: completed
+- Started: 2026-05-12
+- Completed: 2026-05-12
+- Scope:
+  - replaced /cases/[caseId] placeholder with a static case detail workflow
+    workspace
+  - added workflow display components:
+    - ReferralSummaryCard
+    - NormalizedFieldsCard
+    - EvidencePanel
+    - RuleEvaluationCard
+    - LLMAdvisoryCard
+    - HumanReviewPanel
+    - AuditTimeline
+    - AuditEventPayloadPanel
+  - added generateStaticParams for case-a, case-b, and case-c
+- Decisions:
+  - kept the page read-only and server-rendered
+  - did not create shared StatusBadge, SectionCard, or PageHeader primitives
+  - did not refactor Phase 3 CaseCard
+  - did not add framer-motion, shadcn, dialogs, tabs, accordions, or
+    animations
+  - did not add useState/useReducer, reducer, eventFactory, or
+    evidenceSelectors
+  - did not render disabled fake review controls or Reset Case button
+  - rendered HumanReviewPanel as a read-only summary
+  - rendered AuditTimeline as static list rows
+  - rendered AuditEventPayloadPanel as a first-event payload preview
+  - deferred evidence highlighting to Phase 5
+  - deferred audit event selection to Phase 6
+  - deferred review state transitions to Phase 7a
+- Fixes during review:
+  - added schemaVersion and causationEventId display to AuditTimeline rows
+- Commands run:
+  - npm run typecheck
+  - npm run validate:mock
+  - npm run build
+- Stuck points:
+  - over-engineering risk around shared UI primitives, disabled forms, and
+    disabled Reset Case was avoided by keeping Phase 4 static and read-only
+- What I'd do differently:
+  - consider extracting shared badge/card primitives only later if
+    duplication becomes difficult to maintain
 
 ## Phase 5 — Evidence binding interaction
 - Status: not started
