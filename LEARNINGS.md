@@ -225,7 +225,56 @@ working with AI coding tools.
     reducer
 
 ## Phase 7a — Reducer implementation
-- Status: not started
+- Status: completed
+- Started: 2026-05-12
+- Completed: 2026-05-12
+- Scope:
+  - added local reducer for case detail workspace state
+  - added caseReducer, eventFactory, and statusMapping
+  - added SUBMIT_REVIEW and RESET_CASE behavior
+  - moved live top header into CaseWorkspaceClient
+  - added HumanReviewPanel submit form for confirm / override
+  - added scratch/manual-submit.ts for manual reducer verification
+- Decisions:
+  - used reducer only for local demo state; no backend, server action,
+    or persistence
+  - kept request_more_info excluded from runtime behavior
+  - confirm appends HumanReviewSubmitted and FinalDecisionRecorded
+  - override appends HumanReviewSubmitted, HumanOverrideSubmitted, and
+    FinalDecisionRecorded
+  - FinalDecisionRecorded actor is workflow-engine
+  - currentStatus derives from finalDecision
+  - currentStage becomes completed after submit
+  - RESET_CASE restores cloned initial case, clears evidence selection,
+    and resets selectedAuditEventId to the first audit event
+  - buildInitialState clones caseData to avoid direct references to
+    imported mock data
+  - HumanReviewPanel uses a key based on case id, review status, and
+    audit event length to reset local form state after submit/reset
+- Manual verification:
+  - npx tsx scratch/manual-submit.ts verified Case C override
+  - Case C auditEvents length changed from 8 to 11
+  - appended events were HumanReviewSubmitted, HumanOverrideSubmitted,
+    FinalDecisionRecorded
+  - currentStatus became accepted
+  - currentStage became completed
+  - finalDecision.decision became ACCEPT
+  - causation chain was HumanReviewRequested → HumanReviewSubmitted →
+    HumanOverrideSubmitted → FinalDecisionRecorded
+- Commands run:
+  - npm run typecheck
+  - npm run validate:mock
+  - npm run build
+  - npx tsx scratch/manual-submit.ts
+- Stuck points:
+  - initial reducer state needed to clone caseData instead of storing
+    the imported mock object directly
+  - HumanReviewPanel local form state needed a remount key after
+    submit/reset
+- What I'd do differently:
+  - verify reducer behavior manually before writing tests, so Phase 7b
+    tests can use explicit expected values instead of copying reducer
+    behavior
 
 ## Phase 7b — Reducer tests
 - Status: not started
