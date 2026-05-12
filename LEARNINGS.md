@@ -360,7 +360,39 @@ working with AI coding tools.
     invented policy/prompt improvements
 
 ## Phase 9 — Case Study Landing Page
-- Status: not started
+- Status: completed
+- Started: 2026-05-12
+- Completed: 2026-05-12
+- Scope:
+  - replaced homepage placeholder with a case study landing page
+  - added case-study sections for hero, problem, system approach, design
+    principles, and demo walkthrough
+  - added direct links to /demo, /replay, and individual case workflows
+  - added a visible mock-demo boundary disclaimer
+- Decisions:
+  - kept homepage server-rendered with no "use client"
+  - did not modify workflow behavior, reducer, mock data, replay data,
+    validator, or tests
+  - positioned the project as a frontend-only engineering case study
+  - explicitly stated mock-data, no-PHI, no-real-LLM,
+    no-production-system, and no-real-business-decision boundaries
+  - described LLM output as advisory only, never as the final
+    decision-maker
+  - avoided production/autonomous AI claims
+- Commands run:
+  - npm run typecheck
+  - npm run validate:mock
+  - npm run test
+  - npm run build
+- Results:
+  - homepage builds as a static prerendered page
+  - reducer tests still pass
+  - mock/replay validator still passes
+- Stuck points:
+  - none
+- What I'd do differently:
+  - keep landing page copy precise and bounded so the demo is credible
+    rather than overclaimed
 
 ## Phase 10 — Polish / README / Deploy
 - Status: not started
