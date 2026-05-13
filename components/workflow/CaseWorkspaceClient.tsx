@@ -291,17 +291,30 @@ export default function CaseWorkspaceClient({
 
       <div className="space-y-3">
         <ZoneHeading letter="B" title="Audit Record" phase="record" />
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.2fr]">
-          <AuditTimeline
-            auditEvents={caseData.auditEvents}
-            selectedAuditEventId={selectedAuditEventId}
-            onSelectAuditEvent={handleSelectAuditEvent}
-          />
-          <AuditEventPayloadPanel
-            auditEvents={caseData.auditEvents}
-            selectedAuditEventId={selectedAuditEventId}
-          />
-        </div>
+        <section
+          aria-label="Audit master-detail workspace"
+          className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
+        >
+          <header className="flex flex-wrap items-baseline justify-between gap-2 border-b border-slate-100 bg-slate-50/60 px-4 py-2">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
+              Audit master-detail
+            </h3>
+            <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-slate-500">
+              click an event → inspect its payload
+            </span>
+          </header>
+          <div className="grid grid-cols-1 divide-y divide-slate-100 lg:grid-cols-[2fr_3fr] lg:divide-x lg:divide-y-0">
+            <AuditTimeline
+              auditEvents={caseData.auditEvents}
+              selectedAuditEventId={selectedAuditEventId}
+              onSelectAuditEvent={handleSelectAuditEvent}
+            />
+            <AuditEventPayloadPanel
+              auditEvents={caseData.auditEvents}
+              selectedAuditEventId={selectedAuditEventId}
+            />
+          </div>
+        </section>
       </div>
     </div>
   );
