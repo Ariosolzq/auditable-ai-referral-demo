@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { ReplayCaseComparison } from "@/types/replay";
 
 type Props = {
@@ -6,41 +7,50 @@ type Props = {
 
 type Tone = "neutral" | "amber" | "rose";
 
-function Card({
+function Stat({
   label,
   value,
-  tone = "neutral",
+  tone,
 }: {
   label: string;
   value: number;
-  tone?: Tone;
+  tone: Tone;
 }) {
-  const styles: Record<Tone, { card: string; label: string; value: string }> = {
-    neutral: {
-      card: "border-slate-200 bg-white",
-      label: "text-slate-500",
-      value: "text-slate-900",
-    },
-    amber: {
-      card: "border-amber-200 bg-amber-50",
-      label: "text-amber-700",
-      value: "text-amber-900",
-    },
-    rose: {
-      card: "border-rose-200 bg-rose-50",
-      label: "text-rose-700",
-      value: "text-rose-900",
-    },
+  const valueTone: Record<Tone, string> = {
+    neutral: "text-slate-900",
+    amber: "text-amber-800",
+    rose: "text-rose-800",
   };
-  const s = styles[tone];
+  const labelTone: Record<Tone, string> = {
+    neutral: "text-slate-500",
+    amber: "text-amber-700",
+    rose: "text-rose-700",
+  };
   return (
-    <div className={`rounded-lg border p-3 shadow-sm ${s.card}`}>
-      <div className={`text-xs uppercase tracking-wide ${s.label}`}>
+    <div className="inline-flex items-baseline gap-1.5">
+      <span className={`text-lg font-semibold tabular-nums ${valueTone[tone]}`}>
+        {value}
+      </span>
+      <span
+        className={`text-[10px] font-semibold uppercase tracking-[0.14em] ${labelTone[tone]}`}
+      >
         {label}
-      </div>
-      <div className={`mt-1 text-2xl font-semibold ${s.value}`}>{value}</div>
+      </span>
     </div>
   );
+}
+
+function Divider() {
+  return (
+    <span
+      aria-hidden="true"
+      className="hidden h-4 w-px bg-slate-200 sm:inline-block"
+    />
+  );
+}
+
+function Cell({ children }: { children: ReactNode }) {
+  return <div className="flex items-center gap-3">{children}</div>;
 }
 
 export default function ReplaySummaryCards({ comparisons }: Props) {
@@ -59,29 +69,49 @@ export default function ReplaySummaryCards({ comparisons }: Props) {
   ).length;
 
   return (
-    <section>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        <Card label="Total cases" value={total} tone="neutral" />
-        <Card
-          label="Rule decision changes"
-          value={ruleChanges}
-          tone={ruleChanges > 0 ? "amber" : "neutral"}
-        />
-        <Card
-          label="Routing changes"
-          value={routingChanges}
-          tone={routingChanges > 0 ? "amber" : "neutral"}
-        />
-        <Card
-          label="Review requirement changes"
-          value={reviewChanges}
-          tone={reviewChanges > 0 ? "amber" : "neutral"}
-        />
-        <Card
-          label="Potential regressions"
-          value={regressions}
-          tone={regressions > 0 ? "rose" : "neutral"}
-        />
+    <section
+      aria-label="Replay scoreboard"
+      className="rounded-lg border border-slate-200 bg-white px-4 py-2 shadow-sm"
+    >
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+          Scoreboard
+        </span>
+        <Cell>
+          <Stat label="Total cases" value={total} tone="neutral" />
+        </Cell>
+        <Divider />
+        <Cell>
+          <Stat
+            label="Rule"
+            value={ruleChanges}
+            tone={ruleChanges > 0 ? "amber" : "neutral"}
+          />
+        </Cell>
+        <Divider />
+        <Cell>
+          <Stat
+            label="Routing"
+            value={routingChanges}
+            tone={routingChanges > 0 ? "amber" : "neutral"}
+          />
+        </Cell>
+        <Divider />
+        <Cell>
+          <Stat
+            label="Review req."
+            value={reviewChanges}
+            tone={reviewChanges > 0 ? "amber" : "neutral"}
+          />
+        </Cell>
+        <Divider />
+        <Cell>
+          <Stat
+            label="Potential regressions"
+            value={regressions}
+            tone={regressions > 0 ? "rose" : "neutral"}
+          />
+        </Cell>
       </div>
     </section>
   );

@@ -28,7 +28,7 @@ function Badge({
 function decisionTone(v: string): string {
   if (v === "ACCEPT" || v === "auto_accept")
     return "bg-emerald-50 text-emerald-800 border-emerald-200";
-  if (v === "REJECT" || v === "auto_reject" || v === "failed")
+  if (v === "REJECT" || v === "failed")
     return "bg-rose-50 text-rose-800 border-rose-200";
   if (
     v === "NEEDS_REVIEW" ||
@@ -39,12 +39,6 @@ function decisionTone(v: string): string {
     return "bg-amber-50 text-amber-800 border-amber-200";
   }
   return "bg-slate-100 text-slate-700 border-slate-200";
-}
-
-function regressionTone(flag: boolean): string {
-  return flag
-    ? "bg-rose-50 text-rose-800 border-rose-200"
-    : "bg-slate-100 text-slate-700 border-slate-200";
 }
 
 function ChangedPair({
@@ -107,20 +101,25 @@ export default function ReplayComparisonTable({
 }: Props) {
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
-        Comparison Table
-      </h2>
+      <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
+          Comparison Table
+        </h2>
+        <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+          reference · click a row to inspect
+        </span>
+      </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-              <th className="py-2 pr-3">Case</th>
-              <th className="py-2 pr-3">Historical</th>
-              <th className="py-2 pr-3">Rule</th>
-              <th className="py-2 pr-3">Routing</th>
-              <th className="py-2 pr-3">Review required</th>
-              <th className="py-2 pr-3">Risk flags</th>
-              <th className="py-2 pr-3">Regression</th>
+            <tr className="text-left text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+              <th className="py-1.5 pr-3">Case</th>
+              <th className="py-1.5 pr-3">Historical</th>
+              <th className="py-1.5 pr-3">Rule</th>
+              <th className="py-1.5 pr-3">Routing</th>
+              <th className="py-1.5 pr-3">Review required</th>
+              <th className="py-1.5 pr-3">Risk flags</th>
+              <th className="py-1.5 pr-3">Regression</th>
             </tr>
           </thead>
           <tbody>
@@ -138,6 +137,9 @@ export default function ReplayComparisonTable({
               const firstCellAccent = isRegression
                 ? "border-l-4 border-l-rose-400 pl-2"
                 : "";
+              const titleClass = isRegression
+                ? "text-slate-900"
+                : "text-slate-700";
               return (
                 <tr
                   key={c.caseId}
@@ -148,7 +150,7 @@ export default function ReplayComparisonTable({
                       type="button"
                       aria-pressed={isSelected}
                       onClick={() => onSelectRow(idx)}
-                      className="text-left text-sm font-medium text-slate-900 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
+                      className={`text-left text-sm font-medium hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 ${titleClass}`}
                     >
                       {c.caseTitle}
                     </button>
@@ -191,13 +193,18 @@ export default function ReplayComparisonTable({
                     )}
                   </td>
                   <td className="py-2 pr-3">
-                    <Badge
-                      className={regressionTone(c.diff.potentialRegression)}
-                    >
-                      {c.diff.potentialRegression
-                        ? "Potential regression"
-                        : "No regression"}
-                    </Badge>
+                    {isRegression ? (
+                      <Badge className="border-rose-200 bg-rose-50 text-rose-800">
+                        Potential regression
+                      </Badge>
+                    ) : (
+                      <span
+                        aria-label="No regression"
+                        className="text-sm text-slate-400"
+                      >
+                        —
+                      </span>
+                    )}
                   </td>
                 </tr>
               );
