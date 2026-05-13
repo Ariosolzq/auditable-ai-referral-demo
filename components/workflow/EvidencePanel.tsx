@@ -47,9 +47,16 @@ export default function EvidencePanel({
           Evidence Package
         </h2>
         {selectedCount > 0 && (
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500">
-              Selected evidence: {selectedCount}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-700">
+              <span
+                aria-hidden="true"
+                className="inline-block h-1.5 w-1.5 rounded-full bg-amber-500"
+              />
+              Evidence selected
+              <span className="rounded bg-amber-200 px-1 font-bold text-amber-800">
+                {selectedCount}
+              </span>
             </span>
             {onClearSelection && (
               <button
@@ -71,7 +78,7 @@ export default function EvidencePanel({
               key={e.id}
               className={`rounded-md border p-3 text-sm transition ${
                 selected
-                  ? "border-sky-300 bg-sky-50 ring-1 ring-sky-200"
+                  ? "border-sky-300 border-l-4 border-l-amber-400 bg-sky-50 ring-1 ring-sky-200"
                   : "border-slate-100 bg-slate-50/50"
               }`}
             >

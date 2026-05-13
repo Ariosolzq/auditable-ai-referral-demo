@@ -45,6 +45,21 @@ function confidenceTone(c: "low" | "medium" | "high"): string {
   return "bg-slate-100 text-slate-700 border-slate-200";
 }
 
+function BindingCue({ count }: { count: number }) {
+  return (
+    <span className="inline-flex items-center gap-1 rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-700">
+      <span
+        aria-hidden="true"
+        className="inline-block h-1.5 w-1.5 rounded-full bg-amber-500"
+      />
+      evidence-bound
+      <span className="rounded bg-amber-200 px-1 font-bold text-amber-800">
+        {count}
+      </span>
+    </span>
+  );
+}
+
 function SupportingEvidence({
   ids,
   onSelectEvidence,
@@ -55,8 +70,8 @@ function SupportingEvidence({
   if (ids.length === 0) return null;
   if (!onSelectEvidence) {
     return (
-      <div className="mt-1 text-xs text-slate-500">
-        Evidence:{" "}
+      <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
+        <BindingCue count={ids.length} />
         {ids.map((id, i) => (
           <span key={id}>
             <code>{id}</code>
@@ -68,13 +83,13 @@ function SupportingEvidence({
   }
   return (
     <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
-      <span>Evidence:</span>
+      <BindingCue count={ids.length} />
       {ids.map((id) => (
         <button
           key={id}
           type="button"
           onClick={() => onSelectEvidence(ids)}
-          className="inline-flex items-center rounded-md border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-700 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-sky-500"
+          className="inline-flex items-center rounded-md border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-700 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-amber-500"
         >
           {id}
         </button>
