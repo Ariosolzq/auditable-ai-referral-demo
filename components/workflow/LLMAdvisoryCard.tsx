@@ -24,9 +24,19 @@ function Badge({
   );
 }
 
+function Chip({ label, value }: { label: string; value: ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded border border-slate-200 bg-white px-2 py-0.5 text-xs">
+      <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+        {label}
+      </span>
+      <span className="font-medium text-slate-700">{value}</span>
+    </span>
+  );
+}
+
 function statusTone(s: LLMAdvisory["status"]): string {
-  if (s === "generated")
-    return "bg-sky-50 text-sky-800 border-sky-200";
+  if (s === "generated") return "bg-sky-50 text-sky-800 border-sky-200";
   if (s === "failed") return "bg-rose-50 text-rose-800 border-rose-200";
   return "bg-slate-100 text-slate-700 border-slate-200";
 }
@@ -156,45 +166,55 @@ export default function LLMAdvisoryCard({
 
       {llmAdvisory.status === "generated" && (
         <>
-          <div className="mb-3 space-y-1 text-xs text-slate-500">
-            <div>
-              Prompt version: <code>{llmAdvisory.promptVersion}</code>
-            </div>
-            <div>
-              Model version: <code>{llmAdvisory.modelVersion}</code>
-            </div>
-            <div>
-              Policy bundle version:{" "}
-              <code>{llmAdvisory.policyBundleVersion}</code>
-            </div>
-            <div>
-              Requires human review:{" "}
-              <span className="text-slate-700">
-                {llmAdvisory.requiresHumanReview ? "true" : "false"}
-              </span>
-            </div>
+          <div className="mb-3 flex flex-wrap items-center gap-1.5">
+            <Chip
+              label="prompt"
+              value={
+                <code className="font-mono">{llmAdvisory.promptVersion}</code>
+              }
+            />
+            <Chip
+              label="model"
+              value={
+                <code className="font-mono">{llmAdvisory.modelVersion}</code>
+              }
+            />
+            <Chip
+              label="policy"
+              value={
+                <code className="font-mono">
+                  {llmAdvisory.policyBundleVersion}
+                </code>
+              }
+            />
+            <Chip
+              label="requires human review"
+              value={llmAdvisory.requiresHumanReview ? "true" : "false"}
+            />
           </div>
 
-          <div className="mb-3">
+          <div className="mb-2.5">
             <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
               Evidence summary
             </h3>
             {llmAdvisory.evidenceSummary.length === 0 ? (
               <p className="text-sm text-slate-500">None</p>
             ) : (
-              <ul className="space-y-2">
+              <ul className="space-y-1.5">
                 {llmAdvisory.evidenceSummary.map((s) => (
                   <li
                     key={s.id}
-                    className="rounded-md border border-slate-100 bg-slate-50/50 p-3 text-sm"
+                    className="rounded-md border border-slate-100 bg-slate-50/50 p-2.5 text-sm"
                   >
-                    <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
-                      <code className="text-xs text-slate-700">{s.id}</code>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                       <Badge className={confidenceTone(s.confidence)}>
                         {s.confidence}
                       </Badge>
+                      <code className="text-xs text-slate-700">{s.id}</code>
                     </div>
-                    <p className="text-slate-700">{s.summary}</p>
+                    <p className="mt-1 text-xs leading-snug text-slate-700">
+                      {s.summary}
+                    </p>
                     <SupportingEvidence
                       ids={s.supportingEvidenceIds}
                       onSelectEvidence={onSelectEvidence}
@@ -205,26 +225,28 @@ export default function LLMAdvisoryCard({
             )}
           </div>
 
-          <div className="mb-3">
+          <div className="mb-2.5">
             <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
               Missing field analysis
             </h3>
             {llmAdvisory.missingFieldAnalysis.length === 0 ? (
               <p className="text-sm text-slate-500">None</p>
             ) : (
-              <ul className="space-y-2">
+              <ul className="space-y-1.5">
                 {llmAdvisory.missingFieldAnalysis.map((m) => (
                   <li
                     key={m.field}
-                    className="rounded-md border border-slate-100 bg-slate-50/50 p-3 text-sm"
+                    className="rounded-md border border-slate-100 bg-slate-50/50 p-2.5 text-sm"
                   >
-                    <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
-                      <code className="text-xs text-slate-700">{m.field}</code>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                       <Badge className={severityTone(m.severity)}>
                         {m.severity}
                       </Badge>
+                      <code className="text-xs text-slate-700">{m.field}</code>
                     </div>
-                    <p className="text-slate-700">{m.explanation}</p>
+                    <p className="mt-1 text-xs leading-snug text-slate-700">
+                      {m.explanation}
+                    </p>
                     <SupportingEvidence
                       ids={m.supportingEvidenceIds}
                       onSelectEvidence={onSelectEvidence}
@@ -235,26 +257,28 @@ export default function LLMAdvisoryCard({
             )}
           </div>
 
-          <div className="mb-3">
+          <div className="mb-2.5">
             <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
               Risk flags
             </h3>
             {llmAdvisory.riskFlags.length === 0 ? (
               <p className="text-sm text-slate-500">None</p>
             ) : (
-              <ul className="space-y-2">
+              <ul className="space-y-1.5">
                 {llmAdvisory.riskFlags.map((r) => (
                   <li
                     key={r.code}
-                    className="rounded-md border border-slate-100 bg-slate-50/50 p-3 text-sm"
+                    className="rounded-md border border-slate-100 bg-slate-50/50 p-2.5 text-sm"
                   >
-                    <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
-                      <code className="text-xs text-slate-700">{r.code}</code>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                       <Badge className={severityTone(r.severity)}>
                         {r.severity}
                       </Badge>
+                      <code className="text-xs text-slate-700">{r.code}</code>
                     </div>
-                    <p className="text-slate-700">{r.explanation}</p>
+                    <p className="mt-1 text-xs leading-snug text-slate-700">
+                      {r.explanation}
+                    </p>
                     <SupportingEvidence
                       ids={r.supportingEvidenceIds}
                       onSelectEvidence={onSelectEvidence}
@@ -265,11 +289,11 @@ export default function LLMAdvisoryCard({
             )}
           </div>
 
-          <div className="mb-3">
+          <div className="mb-2.5">
             <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
               Reviewer notes
             </h3>
-            <p className="text-sm text-slate-700">
+            <p className="text-sm leading-snug text-slate-700">
               {llmAdvisory.reviewerNotes}
             </p>
           </div>
@@ -281,11 +305,11 @@ export default function LLMAdvisoryCard({
             {llmAdvisory.unsupportedClaims.length === 0 ? (
               <p className="text-sm text-slate-500">None</p>
             ) : (
-              <ul className="space-y-2">
+              <ul className="space-y-1.5">
                 {llmAdvisory.unsupportedClaims.map((u, i) => (
                   <li
                     key={i}
-                    className="rounded-md border border-slate-100 bg-slate-50/50 p-3 text-sm"
+                    className="rounded-md border border-slate-100 bg-slate-50/50 p-2.5 text-sm"
                   >
                     <p className="font-medium text-slate-900">{u.claim}</p>
                     <p className="text-xs text-slate-500">{u.reason}</p>

@@ -29,6 +29,17 @@ function Badge({
   );
 }
 
+function Chip({ label, value }: { label: string; value: ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded border border-slate-200 bg-white px-2 py-0.5 text-xs">
+      <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+        {label}
+      </span>
+      <span className="font-medium text-slate-700">{value}</span>
+    </span>
+  );
+}
+
 function decisionTone(v: string): string {
   if (v === "ACCEPT" || v === "auto_accept")
     return "bg-emerald-50 text-emerald-800 border-emerald-200";
@@ -113,13 +124,15 @@ function ReasonRow({
   onSelectEvidence?: (ids: string[]) => void;
 }) {
   return (
-    <li className="rounded-md border border-slate-100 bg-slate-50/50 p-3 text-sm">
-      <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
-        <code className="text-xs text-slate-700">{item.code}</code>
+    <li className="rounded-md border border-slate-100 bg-slate-50/50 p-2.5 text-sm">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         <Badge className={severityTone(item.severity)}>{item.severity}</Badge>
+        <code className="text-xs text-slate-700">{item.code}</code>
+        <span className="font-medium text-slate-900">{item.label}</span>
       </div>
-      <div className="font-medium text-slate-900">{item.label}</div>
-      <p className="text-slate-700">{item.description}</p>
+      <p className="mt-1 text-xs leading-snug text-slate-600">
+        {item.description}
+      </p>
       <SupportingEvidence
         ids={item.supportingEvidenceIds}
         onSelectEvidence={onSelectEvidence}
@@ -136,17 +149,17 @@ function MissingFieldRow({
   onSelectEvidence?: (ids: string[]) => void;
 }) {
   return (
-    <li className="rounded-md border border-slate-100 bg-slate-50/50 p-3 text-sm">
-      <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
-        <code className="text-xs text-slate-700">{item.field}</code>
+    <li className="rounded-md border border-slate-100 bg-slate-50/50 p-2.5 text-sm">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         <Badge className={severityTone(item.severity)}>{item.severity}</Badge>
+        <code className="text-xs text-slate-700">{item.field}</code>
+        <span className="font-medium text-slate-900">{item.label}</span>
+        {item.reasonCode && (
+          <span className="text-xs text-slate-500">
+            reason code: <code>{item.reasonCode}</code>
+          </span>
+        )}
       </div>
-      <div className="font-medium text-slate-900">{item.label}</div>
-      {item.reasonCode && (
-        <div className="text-xs text-slate-500">
-          reason code: <code>{item.reasonCode}</code>
-        </div>
-      )}
       <SupportingEvidence
         ids={item.supportingEvidenceIds}
         onSelectEvidence={onSelectEvidence}
@@ -163,12 +176,14 @@ function ConflictRow({
   onSelectEvidence?: (ids: string[]) => void;
 }) {
   return (
-    <li className="rounded-md border border-slate-100 bg-slate-50/50 p-3 text-sm">
-      <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
-        <code className="text-xs text-slate-700">{item.code}</code>
+    <li className="rounded-md border border-slate-100 bg-slate-50/50 p-2.5 text-sm">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         <Badge className={severityTone(item.severity)}>{item.severity}</Badge>
+        <code className="text-xs text-slate-700">{item.code}</code>
       </div>
-      <p className="text-slate-700">{item.description}</p>
+      <p className="mt-1 text-xs leading-snug text-slate-600">
+        {item.description}
+      </p>
       <SupportingEvidence
         ids={item.supportingEvidenceIds}
         onSelectEvidence={onSelectEvidence}
@@ -188,27 +203,30 @@ export default function RuleEvaluationCard({
         Deterministic Rule Evaluation
       </h2>
 
-      <div className="mb-3 space-y-1.5 text-sm">
-        <div className="flex items-center justify-between gap-3">
-          <span className="text-slate-500">Rule decision</span>
-          <Badge className={decisionTone(re.decision)}>{re.decision}</Badge>
-        </div>
-        <div className="flex items-center justify-between gap-3">
-          <span className="text-slate-500">Routing decision</span>
-          <Badge className={decisionTone(re.routingDecision)}>
-            {re.routingDecision}
-          </Badge>
-        </div>
+      <div className="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-sm">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+          Rule
+        </span>
+        <Badge className={decisionTone(re.decision)}>{re.decision}</Badge>
+        <span aria-hidden="true" className="text-slate-300">
+          →
+        </span>
+        <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+          Routing
+        </span>
+        <Badge className={decisionTone(re.routingDecision)}>
+          {re.routingDecision}
+        </Badge>
       </div>
 
-      <div className="mb-3">
+      <div className="mb-2.5">
         <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
           Reason codes
         </h3>
         {re.reasonCodes.length === 0 ? (
           <p className="text-sm text-slate-500">None</p>
         ) : (
-          <ul className="space-y-2">
+          <ul className="space-y-1.5">
             {re.reasonCodes.map((r) => (
               <ReasonRow
                 key={r.code}
@@ -221,11 +239,11 @@ export default function RuleEvaluationCard({
       </div>
 
       {re.missingFields.length > 0 && (
-        <div className="mb-3">
+        <div className="mb-2.5">
           <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
             Missing fields
           </h3>
-          <ul className="space-y-2">
+          <ul className="space-y-1.5">
             {re.missingFields.map((m) => (
               <MissingFieldRow
                 key={m.field}
@@ -238,11 +256,11 @@ export default function RuleEvaluationCard({
       )}
 
       {re.conflictFlags.length > 0 && (
-        <div className="mb-3">
+        <div className="mb-2.5">
           <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
             Conflict flags
           </h3>
-          <ul className="space-y-2">
+          <ul className="space-y-1.5">
             {re.conflictFlags.map((cf) => (
               <ConflictRow
                 key={cf.code}
@@ -254,14 +272,14 @@ export default function RuleEvaluationCard({
         </div>
       )}
 
-      <div className="mb-3">
+      <div className="mb-2.5">
         <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
           Routing reason codes
         </h3>
         {re.routingReasonCodes.length === 0 ? (
           <p className="text-sm text-slate-500">None</p>
         ) : (
-          <ul className="space-y-2">
+          <ul className="space-y-1.5">
             {re.routingReasonCodes.map((r) => (
               <ReasonRow
                 key={r.code}
@@ -273,19 +291,37 @@ export default function RuleEvaluationCard({
         )}
       </div>
 
-      <div className="mt-3 space-y-1 border-t border-slate-100 pt-3 text-xs text-slate-500">
-        <div>
-          Rule set version: <code>{re.ruleSetVersion}</code>
-        </div>
-        <div>
-          Policy bundle version: <code>{re.policyBundleVersion}</code>
-        </div>
-        <div>
-          Input hash: <code className="break-all">{re.inputHash}</code>
-        </div>
-        <div>
-          Output hash: <code className="break-all">{re.outputHash}</code>
-        </div>
+      <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-slate-100 pt-3">
+        <Chip
+          label="rule set"
+          value={<code className="font-mono">{re.ruleSetVersion}</code>}
+        />
+        <Chip
+          label="policy"
+          value={<code className="font-mono">{re.policyBundleVersion}</code>}
+        />
+        <Chip
+          label="input hash"
+          value={
+            <code
+              className="break-all font-mono text-[10px]"
+              title={re.inputHash}
+            >
+              {re.inputHash}
+            </code>
+          }
+        />
+        <Chip
+          label="output hash"
+          value={
+            <code
+              className="break-all font-mono text-[10px]"
+              title={re.outputHash}
+            >
+              {re.outputHash}
+            </code>
+          }
+        />
       </div>
     </section>
   );

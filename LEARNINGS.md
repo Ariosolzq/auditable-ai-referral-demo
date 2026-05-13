@@ -546,3 +546,88 @@ working with AI coding tools.
     workflow-first redesign treatment, with the swimlane vocabulary
     extended into the live workspace rather than the current dense
     three-column grid
+
+## Round 2e — Case Detail card density compression
+- Status: completed
+- Scope:
+  - compressed the internal layout of RuleEvaluationCard and
+    LLMAdvisoryCard after browser QA on the earlier Case Detail
+    redesign rounds passed
+  - changed files: components/workflow/RuleEvaluationCard.tsx and
+    components/workflow/LLMAdvisoryCard.tsx
+- What changed:
+  - RuleEvaluationCard:
+    - compressed the local Rule / Routing summary into one compact
+      inline row inside the card
+    - compressed reason codes, missing fields, conflict flags, and
+      routing reason codes into denser item rows with a single dense
+      header line (severity badge + code + label flowing horizontally)
+      and a second-line description
+    - preserved severity, code/field, label, description, and
+      supportingEvidenceIds on every item
+    - preserved the evidence-bound cue and click-to-highlight behavior
+    - compressed footer metadata into a chip row: rule set version,
+      policy bundle version, input hash, output hash
+    - preserved full hash values via break-all rendering and title
+      attribute on the visible code element
+  - LLMAdvisoryCard:
+    - kept the "Advisory only — this output does not change the final
+      decision." banner prominent and visually separate from the
+      Status row
+    - compressed prompt / model / policy / requires-human-review
+      metadata into a chip row inside the generated branch
+    - compressed evidence summary, missing-field analysis, and risk
+      flag rows using the same dense header + secondary line pattern
+    - preserved reviewer notes as a readable paragraph
+    - preserved unsupported claims with the "None" placeholder when
+      empty
+    - preserved skipped / generated / failed branch semantics
+    - preserved evidence-bound cues and click-to-highlight behavior
+- Key design decision: compress layout without deleting information
+  - every existing field, severity, code, label, description, summary,
+    evidence id, hash, version, and branch-specific field is still
+    rendered after the compression
+  - density was reduced by flattening multi-line headers into single
+    flex-wrap rows and by converting stacked metadata into chip rows,
+    not by removing data
+- Why Rule / Routing summary was kept inside RuleEvaluationCard:
+  - the page-header decision triple from Round 2a already surfaces
+    Rule / Routing / Final at the top of the workspace, but the Rule
+    card must still make local sense when viewed independently
+  - keeping Rule and Routing inline inside the card preserves the
+    rule-first reading order and lets the card stand alone as the
+    deterministic decision artifact
+  - Final decision is deliberately not duplicated inside
+    RuleEvaluationCard, because Final is governed by human review and
+    belongs to the page-level decision triple, not to the rule card
+- Why the LLM advisory-only banner and Status row stayed separate:
+  - the advisory-only banner is a governance boundary statement: the
+    LLM never makes or records the final decision
+  - the Status row is execution state: skipped / generated / failed
+  - merging them would conflate a governance invariant with a runtime
+    state value and weaken the visual boundary that makes the demo
+    credible
+- Deliberately not changed:
+  - data/cases.ts, data/replayRuns.ts
+  - types/referral.ts, types/replay.ts
+  - lib/caseReducer.ts, lib/eventFactory.ts, lib/statusMapping.ts
+  - scripts/validate-mock-data.ts
+  - tests/caseReducer.test.ts
+  - event semantics, submit/reset behavior
+  - selectedEvidenceIds behavior, selectedAuditEventId behavior
+  - prop signatures on either card
+  - no request_more_info, no pending audit ghost rows
+  - no new dependencies
+  - README.md, .claude/PROJECT_SPEC.md, CLAUDE.md
+- Validation passed:
+  - npm run typecheck
+  - npm run validate:mock (3 cases, 1 replay run)
+  - npm run test (9/9 reducer tests still green)
+  - npm run build (all routes still SSG/static)
+  - browser QA passed for /cases/case-c
+  - quick branch checks passed for /cases/case-a and /cases/case-b
+- Follow-up:
+  - pause major Case Detail redesign work and run a full QA pass over
+    the workspace before any further visual polish, so cumulative
+    Round 2a–2e changes can be reviewed together against the spec
+    before introducing more changes
