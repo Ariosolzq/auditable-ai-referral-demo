@@ -61,6 +61,47 @@ function FieldRow({ label, value }: { label: string; value: ReactNode }) {
   );
 }
 
+function GovernanceHeader({
+  status,
+}: {
+  status: HumanReview["status"];
+}) {
+  return (
+    <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <span
+          aria-label="Governance boundary"
+          className="inline-flex items-center gap-1 rounded border border-sky-300 bg-sky-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-800"
+        >
+          <span
+            aria-hidden="true"
+            className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-sky-600 text-[9px] font-bold text-white"
+          >
+            G
+          </span>
+          Governance boundary
+        </span>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
+          Human Review
+        </h2>
+      </div>
+      <div className="flex items-center gap-2 text-sm">
+        <span className="text-slate-500">Status</span>
+        <Badge className={statusTone(status)}>{status}</Badge>
+      </div>
+    </header>
+  );
+}
+
+function GovernanceConstraint() {
+  return (
+    <p className="mb-3 rounded-md border border-sky-200 bg-white/70 px-3 py-2 text-xs text-slate-700">
+      <span className="font-semibold text-sky-800">Governance boundary —</span>{" "}
+      only human review can record the final decision in this case.
+    </p>
+  );
+}
+
 export default function HumanReviewPanel({
   humanReview,
   ruleDecision,
@@ -91,173 +132,154 @@ export default function HumanReviewPanel({
   };
 
   return (
-    <section className="rounded-lg border border-slate-200 border-l-4 border-l-sky-500 bg-white p-4 shadow-sm">
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
-          Human Review
-        </h2>
-        <span
-          aria-label="Governance boundary"
-          className="inline-flex items-center gap-1 rounded border border-sky-200 bg-sky-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-700"
-        >
-          <span
-            aria-hidden="true"
-            className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-sky-500 text-[9px] font-bold text-white"
-          >
-            G
-          </span>
-          Governance
-        </span>
-      </div>
+    <section
+      aria-label="Human review governance band"
+      className="rounded-lg border-2 border-sky-400 bg-sky-50/40 p-4 shadow-sm"
+    >
+      <GovernanceHeader status={humanReview.status} />
 
-      <div className="mb-3 flex items-center justify-between gap-3 text-sm">
-        <span className="text-slate-500">Status</span>
-        <Badge className={statusTone(humanReview.status)}>
-          {humanReview.status}
-        </Badge>
-      </div>
-
-      {humanReview.status !== "not_required" && (
-        <p className="mb-3 rounded-md border-l-2 border-sky-300 bg-sky-50/50 px-3 py-2 text-xs text-slate-700">
-          Only human review can record the final decision in this case.
-        </p>
-      )}
+      {humanReview.status !== "not_required" && <GovernanceConstraint />}
 
       {humanReview.status === "not_required" ? (
-        <div className="rounded-md border border-slate-100 bg-slate-50/50 p-3 text-sm text-slate-700">
+        <div className="rounded-md border border-slate-200 bg-white p-3 text-sm text-slate-700">
           <p className="font-medium text-slate-900">
             Human review not required for this case.
           </p>
           <p className="mt-1 text-slate-700">Reason: {humanReview.reason}</p>
         </div>
       ) : humanReview.status === "submitted" ? (
-        <div className="space-y-1.5">
-          <FieldRow label="Review type" value={humanReview.reviewType} />
-          {humanReview.startedAt && (
-            <FieldRow label="Started at" value={humanReview.startedAt} />
-          )}
-          {humanReview.submittedAt && (
-            <FieldRow label="Submitted at" value={humanReview.submittedAt} />
-          )}
-          {humanReview.reviewerAction && (
-            <FieldRow
-              label="Reviewer action"
-              value={humanReview.reviewerAction}
-            />
-          )}
-          {humanReview.finalDecision && (
-            <FieldRow
-              label="Final decision"
-              value={humanReview.finalDecision}
-            />
-          )}
-          {typeof humanReview.overrideFlag === "boolean" && (
-            <FieldRow
-              label="Override flag"
-              value={humanReview.overrideFlag ? "true" : "false"}
-            />
-          )}
-          {humanReview.overrideReason && (
-            <FieldRow
-              label="Override reason"
-              value={humanReview.overrideReason}
-            />
-          )}
-          {humanReview.reviewerNote && (
-            <FieldRow
-              label="Reviewer note"
-              value={humanReview.reviewerNote}
-            />
-          )}
+        <div className="rounded-md border border-slate-200 bg-white p-3">
+          <div className="grid grid-cols-1 gap-x-6 gap-y-1.5 sm:grid-cols-2">
+            <FieldRow label="Review type" value={humanReview.reviewType} />
+            {humanReview.startedAt && (
+              <FieldRow label="Started at" value={humanReview.startedAt} />
+            )}
+            {humanReview.submittedAt && (
+              <FieldRow label="Submitted at" value={humanReview.submittedAt} />
+            )}
+            {humanReview.reviewerAction && (
+              <FieldRow
+                label="Reviewer action"
+                value={humanReview.reviewerAction}
+              />
+            )}
+            {humanReview.finalDecision && (
+              <FieldRow
+                label="Final decision"
+                value={humanReview.finalDecision}
+              />
+            )}
+            {typeof humanReview.overrideFlag === "boolean" && (
+              <FieldRow
+                label="Override flag"
+                value={humanReview.overrideFlag ? "true" : "false"}
+              />
+            )}
+            {humanReview.overrideReason && (
+              <FieldRow
+                label="Override reason"
+                value={humanReview.overrideReason}
+              />
+            )}
+            {humanReview.reviewerNote && (
+              <FieldRow
+                label="Reviewer note"
+                value={humanReview.reviewerNote}
+              />
+            )}
+          </div>
         </div>
       ) : (
-        <form className="space-y-4" onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit}>
           {humanReview.startedAt && (
-            <p className="text-xs text-slate-500">
+            <p className="mb-2 text-xs text-slate-500">
               Started at: {humanReview.startedAt}
             </p>
           )}
 
-          <fieldset className="space-y-1.5">
-            <legend className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Reviewer action
-            </legend>
-            <div className="flex flex-wrap gap-3">
-              {(["confirm", "override"] as ReviewerAction[]).map((opt) => (
-                <label
-                  key={opt}
-                  className="inline-flex items-center gap-1.5 text-sm text-slate-700"
-                >
-                  <input
-                    type="radio"
-                    name="reviewerAction"
-                    value={opt}
-                    checked={reviewerAction === opt}
-                    onChange={() => setReviewerAction(opt)}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-[minmax(180px,1fr)_minmax(180px,1fr)_minmax(220px,1.6fr)_auto] lg:items-start">
+            <fieldset className="space-y-1.5">
+              <legend className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                Reviewer action
+              </legend>
+              <div className="flex flex-wrap gap-3">
+                {(["confirm", "override"] as ReviewerAction[]).map((opt) => (
+                  <label
+                    key={opt}
+                    className="inline-flex items-center gap-1.5 text-sm text-slate-700"
+                  >
+                    <input
+                      type="radio"
+                      name="reviewerAction"
+                      value={opt}
+                      checked={reviewerAction === opt}
+                      onChange={() => setReviewerAction(opt)}
+                    />
+                    {opt}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset className="space-y-1.5">
+              <legend className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                Final decision
+              </legend>
+              <div className="flex flex-wrap gap-3">
+                {(["ACCEPT", "REJECT"] as FinalDecisionValue[]).map((opt) => (
+                  <label
+                    key={opt}
+                    className="inline-flex items-center gap-1.5 text-sm text-slate-700"
+                  >
+                    <input
+                      type="radio"
+                      name="finalDecision"
+                      value={opt}
+                      checked={finalDecision === opt}
+                      onChange={() => setFinalDecision(opt)}
+                    />
+                    {opt}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <div className="space-y-2">
+              {reviewerAction === "override" && (
+                <label className="block space-y-1">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                    Override reason (required)
+                  </span>
+                  <textarea
+                    value={overrideReason}
+                    onChange={(e) => setOverrideReason(e.target.value)}
+                    rows={2}
+                    className="block w-full rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm text-slate-900 shadow-sm focus-visible:border-sky-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-sky-500"
                   />
-                  {opt}
                 </label>
-              ))}
+              )}
+              <label className="block space-y-1">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                  Reviewer note (optional)
+                </span>
+                <textarea
+                  value={reviewerNote}
+                  onChange={(e) => setReviewerNote(e.target.value)}
+                  rows={2}
+                  className="block w-full rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm text-slate-900 shadow-sm focus-visible:border-sky-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-sky-500"
+                />
+              </label>
             </div>
-          </fieldset>
 
-          <fieldset className="space-y-1.5">
-            <legend className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Final decision
-            </legend>
-            <div className="flex flex-wrap gap-3">
-              {(["ACCEPT", "REJECT"] as FinalDecisionValue[]).map((opt) => (
-                <label
-                  key={opt}
-                  className="inline-flex items-center gap-1.5 text-sm text-slate-700"
-                >
-                  <input
-                    type="radio"
-                    name="finalDecision"
-                    value={opt}
-                    checked={finalDecision === opt}
-                    onChange={() => setFinalDecision(opt)}
-                  />
-                  {opt}
-                </label>
-              ))}
+            <div className="flex items-end justify-end lg:pt-5">
+              <button
+                type="submit"
+                disabled={!canSubmit}
+                className="inline-flex items-center rounded-md bg-sky-700 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 disabled:cursor-not-allowed disabled:bg-slate-400"
+              >
+                Submit review
+              </button>
             </div>
-          </fieldset>
-
-          {reviewerAction === "override" && (
-            <label className="block space-y-1">
-              <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Override reason (required)
-              </span>
-              <textarea
-                value={overrideReason}
-                onChange={(e) => setOverrideReason(e.target.value)}
-                rows={2}
-                className="block w-full rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm text-slate-900 shadow-sm focus-visible:border-sky-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-sky-500"
-              />
-            </label>
-          )}
-
-          <label className="block space-y-1">
-            <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Reviewer note (optional)
-            </span>
-            <textarea
-              value={reviewerNote}
-              onChange={(e) => setReviewerNote(e.target.value)}
-              rows={2}
-              className="block w-full rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm text-slate-900 shadow-sm focus-visible:border-sky-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-sky-500"
-            />
-          </label>
-
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={!canSubmit}
-              className="inline-flex items-center rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 disabled:cursor-not-allowed disabled:bg-slate-400"
-            >
-              Submit review
-            </button>
           </div>
         </form>
       )}

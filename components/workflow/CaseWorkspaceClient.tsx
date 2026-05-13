@@ -254,36 +254,47 @@ export default function CaseWorkspaceClient({
 
       <WorkflowProgressRail caseData={caseData} />
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.2fr_0.9fr]">
-        <div className="space-y-4">
-          <ZoneHeading letter="A" title="Inputs & Evidence" phase="input" />
-          <ReferralSummaryCard referralSummary={caseData.referralSummary} />
-          <NormalizedFieldsCard normalizedFields={caseData.normalizedFields} />
-          <EvidencePanel
-            evidenceRecords={caseData.evidenceRecords}
-            selectedEvidenceIds={selectedEvidenceIds}
-            onClearSelection={handleClearSelection}
-          />
+      <HumanReviewPanel
+        key={`${caseData.id}-${caseData.humanReview.status}-${caseData.auditEvents.length}`}
+        humanReview={caseData.humanReview}
+        ruleDecision={caseData.ruleEvaluation.decision}
+        onSubmitReview={handleSubmitReview}
+      />
+
+      <div className="space-y-3">
+        <ZoneHeading
+          letter="A"
+          title="Inputs & Analysis"
+          phase="input → action"
+        />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div className="space-y-4">
+            <ReferralSummaryCard referralSummary={caseData.referralSummary} />
+            <NormalizedFieldsCard
+              normalizedFields={caseData.normalizedFields}
+            />
+            <EvidencePanel
+              evidenceRecords={caseData.evidenceRecords}
+              selectedEvidenceIds={selectedEvidenceIds}
+              onClearSelection={handleClearSelection}
+            />
+          </div>
+          <div className="space-y-4">
+            <RuleEvaluationCard
+              ruleEvaluation={caseData.ruleEvaluation}
+              onSelectEvidence={handleSelectEvidence}
+            />
+            <LLMAdvisoryCard
+              llmAdvisory={caseData.llmAdvisory}
+              onSelectEvidence={handleSelectEvidence}
+            />
+          </div>
         </div>
-        <div className="space-y-4">
-          <ZoneHeading letter="B" title="Decision & Review" phase="action" />
-          <RuleEvaluationCard
-            ruleEvaluation={caseData.ruleEvaluation}
-            onSelectEvidence={handleSelectEvidence}
-          />
-          <LLMAdvisoryCard
-            llmAdvisory={caseData.llmAdvisory}
-            onSelectEvidence={handleSelectEvidence}
-          />
-          <HumanReviewPanel
-            key={`${caseData.id}-${caseData.humanReview.status}-${caseData.auditEvents.length}`}
-            humanReview={caseData.humanReview}
-            ruleDecision={caseData.ruleEvaluation.decision}
-            onSubmitReview={handleSubmitReview}
-          />
-        </div>
-        <div className="space-y-4">
-          <ZoneHeading letter="C" title="Audit Record" phase="record" />
+      </div>
+
+      <div className="space-y-3">
+        <ZoneHeading letter="B" title="Audit Record" phase="record" />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.2fr]">
           <AuditTimeline
             auditEvents={caseData.auditEvents}
             selectedAuditEventId={selectedAuditEventId}

@@ -110,7 +110,7 @@ function tileClass(state: RailState): string {
     case "done":
       return "border-slate-200 bg-white";
     case "active":
-      return "border-sky-400 bg-sky-50/70 ring-2 ring-sky-100";
+      return "border-sky-500 bg-sky-50 ring-2 ring-sky-200";
     case "pending":
       return "border-slate-200 bg-slate-50/60";
     case "skipped":
@@ -160,7 +160,7 @@ function stateIcon(state: RailState): IconSpec {
     case "active":
       return {
         glyph: "●",
-        toneClass: "bg-sky-500 text-white",
+        toneClass: "bg-sky-600 text-white",
         srLabel: "Active",
       };
     case "pending":
@@ -207,9 +207,15 @@ export default function WorkflowProgressRail({ caseData }: Props) {
               className={`relative rounded-md border p-3 ${tileClass(stage.state)}`}
             >
               {isActive && (
-                <span className="absolute -top-2.5 left-3 inline-flex items-center rounded bg-sky-500 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-white shadow-sm">
-                  You are here
-                </span>
+                <>
+                  <span className="absolute -top-2.5 left-3 inline-flex items-center rounded bg-sky-600 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-white shadow-sm">
+                    You are here
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -bottom-[7px] left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-b border-r border-sky-500 bg-sky-50"
+                  />
+                </>
               )}
               <div className="flex items-center justify-between gap-2">
                 <span
