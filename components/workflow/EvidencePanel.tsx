@@ -1,12 +1,13 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { EvidenceRecord } from "@/types/referral";
+import type { EvidenceRecord, ReferralCase } from "@/types/referral";
 
 type Props = {
   evidenceRecords: EvidenceRecord[];
   selectedEvidenceIds?: string[];
   onClearSelection?: () => void;
+  normalizedFields?: ReferralCase["normalizedFields"];
 };
 
 function Badge({
@@ -32,20 +33,40 @@ function confidenceTone(c: EvidenceRecord["confidence"]): string {
   return "bg-slate-100 text-slate-700 border-slate-200";
 }
 
+function NormalizedChip({ name, value }: { name: string; value: unknown }) {
+  return (
+    <span className="inline-flex items-center gap-1 rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[11px]">
+      <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+        {name}
+      </span>
+      <span className="font-medium text-slate-700">{String(value)}</span>
+    </span>
+  );
+}
+
 export default function EvidencePanel({
   evidenceRecords,
   selectedEvidenceIds = [],
   onClearSelection,
+  normalizedFields,
 }: Props) {
   const selectedCount = selectedEvidenceIds.length;
   const selectedSet = new Set(selectedEvidenceIds);
+  const normalizedEntries = normalizedFields
+    ? Object.entries(normalizedFields)
+    : [];
 
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
-          Evidence Package
-        </h2>
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap items-baseline gap-2">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
+            Evidence Package
+          </h2>
+          <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-slate-400">
+            Supports rule and LLM claims
+          </span>
+        </div>
         {selectedCount > 0 && (
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-700">
@@ -53,7 +74,7 @@ export default function EvidencePanel({
                 aria-hidden="true"
                 className="inline-block h-1.5 w-1.5 rounded-full bg-amber-500"
               />
-              Evidence selected
+              Selected evidence
               <span className="rounded bg-amber-200 px-1 font-bold text-amber-800">
                 {selectedCount}
               </span>
@@ -70,6 +91,20 @@ export default function EvidencePanel({
           </div>
         )}
       </div>
+
+      {normalizedEntries.length > 0 && (
+        <div className="mb-3 rounded-md border border-slate-100 bg-slate-50/60 p-2.5">
+          <h3 className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+            Normalized fields
+          </h3>
+          <div className="flex flex-wrap gap-1.5">
+            {normalizedEntries.map(([k, v]) => (
+              <NormalizedChip key={k} name={k} value={v} />
+            ))}
+          </div>
+        </div>
+      )}
+
       <ul className="space-y-2">
         {evidenceRecords.map((e) => {
           const selected = selectedSet.has(e.id);

@@ -6,7 +6,6 @@ import AuditTimeline from "@/components/workflow/AuditTimeline";
 import EvidencePanel from "@/components/workflow/EvidencePanel";
 import HumanReviewPanel from "@/components/workflow/HumanReviewPanel";
 import LLMAdvisoryCard from "@/components/workflow/LLMAdvisoryCard";
-import NormalizedFieldsCard from "@/components/workflow/NormalizedFieldsCard";
 import ReferralSummaryCard from "@/components/workflow/ReferralSummaryCard";
 import RuleEvaluationCard from "@/components/workflow/RuleEvaluationCard";
 import WorkflowProgressRail from "@/components/workflow/WorkflowProgressRail";
@@ -269,15 +268,13 @@ export default function CaseWorkspaceClient({
         />
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div className="space-y-4">
-            <ReferralSummaryCard referralSummary={caseData.referralSummary} />
-            <NormalizedFieldsCard
-              normalizedFields={caseData.normalizedFields}
-            />
             <EvidencePanel
               evidenceRecords={caseData.evidenceRecords}
               selectedEvidenceIds={selectedEvidenceIds}
               onClearSelection={handleClearSelection}
+              normalizedFields={caseData.normalizedFields}
             />
+            <ReferralSummaryCard referralSummary={caseData.referralSummary} />
           </div>
           <div className="space-y-4">
             <RuleEvaluationCard

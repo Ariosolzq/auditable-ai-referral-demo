@@ -1,36 +1,38 @@
+import { Fragment } from "react";
 import type { ReferralCase } from "@/types/referral";
 
 type Props = {
   referralSummary: ReferralCase["referralSummary"];
 };
 
-function Field({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-start justify-between gap-3 text-sm">
-      <span className="text-slate-500">{label}</span>
-      <span className="text-right font-medium text-slate-900">{value}</span>
-    </div>
-  );
-}
-
 export default function ReferralSummaryCard({ referralSummary }: Props) {
+  const rows: [string, string][] = [
+    ["Referral ID", referralSummary.referralId],
+    ["Patient reference", referralSummary.patientReferenceId],
+    ["Source system", referralSummary.sourceSystem],
+    ["Received at", referralSummary.receivedAt],
+    ["Service type", referralSummary.serviceType],
+    ["State", referralSummary.state],
+    ["Payer type", referralSummary.payerType],
+  ];
+
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
+    <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+      <h2 className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-700">
         Referral Summary
       </h2>
-      <div className="space-y-2">
-        <Field label="Referral ID" value={referralSummary.referralId} />
-        <Field
-          label="Patient reference"
-          value={referralSummary.patientReferenceId}
-        />
-        <Field label="Source system" value={referralSummary.sourceSystem} />
-        <Field label="Received at" value={referralSummary.receivedAt} />
-        <Field label="Service type" value={referralSummary.serviceType} />
-        <Field label="State" value={referralSummary.state} />
-        <Field label="Payer type" value={referralSummary.payerType} />
-      </div>
+      <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1">
+        {rows.map(([label, value]) => (
+          <Fragment key={label}>
+            <dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+              {label}
+            </dt>
+            <dd className="break-all text-right text-xs font-medium text-slate-800">
+              {value}
+            </dd>
+          </Fragment>
+        ))}
+      </dl>
     </section>
   );
 }
