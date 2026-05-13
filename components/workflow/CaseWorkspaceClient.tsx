@@ -266,26 +266,24 @@ export default function CaseWorkspaceClient({
           title="Inputs & Analysis"
           phase="input → action"
         />
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <div className="space-y-4">
-            <EvidencePanel
-              evidenceRecords={caseData.evidenceRecords}
-              selectedEvidenceIds={selectedEvidenceIds}
-              onClearSelection={handleClearSelection}
-              normalizedFields={caseData.normalizedFields}
-            />
-            <ReferralSummaryCard referralSummary={caseData.referralSummary} />
-          </div>
-          <div className="space-y-4">
-            <RuleEvaluationCard
-              ruleEvaluation={caseData.ruleEvaluation}
-              onSelectEvidence={handleSelectEvidence}
-            />
-            <LLMAdvisoryCard
-              llmAdvisory={caseData.llmAdvisory}
-              onSelectEvidence={handleSelectEvidence}
-            />
-          </div>
+        <ReferralSummaryCard referralSummary={caseData.referralSummary} />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
+          <EvidencePanel
+            evidenceRecords={caseData.evidenceRecords}
+            selectedEvidenceIds={selectedEvidenceIds}
+            onClearSelection={handleClearSelection}
+            normalizedFields={caseData.normalizedFields}
+          />
+          <RuleEvaluationCard
+            ruleEvaluation={caseData.ruleEvaluation}
+            onSelectEvidence={handleSelectEvidence}
+            selectedEvidenceIds={selectedEvidenceIds}
+          />
+          <LLMAdvisoryCard
+            llmAdvisory={caseData.llmAdvisory}
+            onSelectEvidence={handleSelectEvidence}
+            selectedEvidenceIds={selectedEvidenceIds}
+          />
         </div>
       </div>
 

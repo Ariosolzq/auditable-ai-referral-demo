@@ -1,4 +1,3 @@
-import { Fragment } from "react";
 import type { ReferralCase } from "@/types/referral";
 
 type Props = {
@@ -21,16 +20,16 @@ export default function ReferralSummaryCard({ referralSummary }: Props) {
       <h2 className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-700">
         Referral Summary
       </h2>
-      <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1">
+      <dl className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-x-4 gap-y-1.5">
         {rows.map(([label, value]) => (
-          <Fragment key={label}>
+          <div key={label} className="min-w-0">
             <dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
               {label}
             </dt>
-            <dd className="break-all text-right text-xs font-medium text-slate-800">
+            <dd className="break-all text-xs font-medium text-slate-800">
               {value}
             </dd>
-          </Fragment>
+          </div>
         ))}
       </dl>
     </section>

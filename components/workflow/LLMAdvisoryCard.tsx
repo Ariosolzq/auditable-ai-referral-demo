@@ -6,6 +6,7 @@ import type { LLMAdvisory } from "@/types/referral";
 type Props = {
   llmAdvisory: LLMAdvisory;
   onSelectEvidence?: (ids: string[]) => void;
+  selectedEvidenceIds?: string[];
 };
 
 function Badge({
@@ -53,6 +54,12 @@ function confidenceTone(c: "low" | "medium" | "high"): string {
     return "bg-emerald-50 text-emerald-800 border-emerald-200";
   if (c === "medium") return "bg-amber-50 text-amber-800 border-amber-200";
   return "bg-slate-100 text-slate-700 border-slate-200";
+}
+
+function rowClass(related: boolean): string {
+  return related
+    ? "rounded-md border border-amber-300 border-l-4 border-l-amber-500 bg-amber-50/50 p-2.5 text-sm shadow-sm"
+    : "rounded-md border border-slate-100 bg-slate-50/50 p-2.5 text-sm";
 }
 
 function BindingCue({ count }: { count: number }) {
@@ -111,7 +118,12 @@ function SupportingEvidence({
 export default function LLMAdvisoryCard({
   llmAdvisory,
   onSelectEvidence,
+  selectedEvidenceIds,
 }: Props) {
+  const selectedSet = new Set(selectedEvidenceIds ?? []);
+  const isRelated = (ids: string[]): boolean =>
+    selectedSet.size > 0 && ids.some((id) => selectedSet.has(id));
+
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">
@@ -201,26 +213,26 @@ export default function LLMAdvisoryCard({
               <p className="text-sm text-slate-500">None</p>
             ) : (
               <ul className="space-y-1.5">
-                {llmAdvisory.evidenceSummary.map((s) => (
-                  <li
-                    key={s.id}
-                    className="rounded-md border border-slate-100 bg-slate-50/50 p-2.5 text-sm"
-                  >
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                      <Badge className={confidenceTone(s.confidence)}>
-                        {s.confidence}
-                      </Badge>
-                      <code className="text-xs text-slate-700">{s.id}</code>
-                    </div>
-                    <p className="mt-1 text-xs leading-snug text-slate-700">
-                      {s.summary}
-                    </p>
-                    <SupportingEvidence
-                      ids={s.supportingEvidenceIds}
-                      onSelectEvidence={onSelectEvidence}
-                    />
-                  </li>
-                ))}
+                {llmAdvisory.evidenceSummary.map((s) => {
+                  const related = isRelated(s.supportingEvidenceIds);
+                  return (
+                    <li key={s.id} className={rowClass(related)}>
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <Badge className={confidenceTone(s.confidence)}>
+                          {s.confidence}
+                        </Badge>
+                        <code className="text-xs text-slate-700">{s.id}</code>
+                      </div>
+                      <p className="mt-1 text-xs leading-snug text-slate-700">
+                        {s.summary}
+                      </p>
+                      <SupportingEvidence
+                        ids={s.supportingEvidenceIds}
+                        onSelectEvidence={onSelectEvidence}
+                      />
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>
@@ -233,26 +245,26 @@ export default function LLMAdvisoryCard({
               <p className="text-sm text-slate-500">None</p>
             ) : (
               <ul className="space-y-1.5">
-                {llmAdvisory.missingFieldAnalysis.map((m) => (
-                  <li
-                    key={m.field}
-                    className="rounded-md border border-slate-100 bg-slate-50/50 p-2.5 text-sm"
-                  >
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                      <Badge className={severityTone(m.severity)}>
-                        {m.severity}
-                      </Badge>
-                      <code className="text-xs text-slate-700">{m.field}</code>
-                    </div>
-                    <p className="mt-1 text-xs leading-snug text-slate-700">
-                      {m.explanation}
-                    </p>
-                    <SupportingEvidence
-                      ids={m.supportingEvidenceIds}
-                      onSelectEvidence={onSelectEvidence}
-                    />
-                  </li>
-                ))}
+                {llmAdvisory.missingFieldAnalysis.map((m) => {
+                  const related = isRelated(m.supportingEvidenceIds);
+                  return (
+                    <li key={m.field} className={rowClass(related)}>
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <Badge className={severityTone(m.severity)}>
+                          {m.severity}
+                        </Badge>
+                        <code className="text-xs text-slate-700">{m.field}</code>
+                      </div>
+                      <p className="mt-1 text-xs leading-snug text-slate-700">
+                        {m.explanation}
+                      </p>
+                      <SupportingEvidence
+                        ids={m.supportingEvidenceIds}
+                        onSelectEvidence={onSelectEvidence}
+                      />
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>
@@ -265,26 +277,26 @@ export default function LLMAdvisoryCard({
               <p className="text-sm text-slate-500">None</p>
             ) : (
               <ul className="space-y-1.5">
-                {llmAdvisory.riskFlags.map((r) => (
-                  <li
-                    key={r.code}
-                    className="rounded-md border border-slate-100 bg-slate-50/50 p-2.5 text-sm"
-                  >
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                      <Badge className={severityTone(r.severity)}>
-                        {r.severity}
-                      </Badge>
-                      <code className="text-xs text-slate-700">{r.code}</code>
-                    </div>
-                    <p className="mt-1 text-xs leading-snug text-slate-700">
-                      {r.explanation}
-                    </p>
-                    <SupportingEvidence
-                      ids={r.supportingEvidenceIds}
-                      onSelectEvidence={onSelectEvidence}
-                    />
-                  </li>
-                ))}
+                {llmAdvisory.riskFlags.map((r) => {
+                  const related = isRelated(r.supportingEvidenceIds);
+                  return (
+                    <li key={r.code} className={rowClass(related)}>
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <Badge className={severityTone(r.severity)}>
+                          {r.severity}
+                        </Badge>
+                        <code className="text-xs text-slate-700">{r.code}</code>
+                      </div>
+                      <p className="mt-1 text-xs leading-snug text-slate-700">
+                        {r.explanation}
+                      </p>
+                      <SupportingEvidence
+                        ids={r.supportingEvidenceIds}
+                        onSelectEvidence={onSelectEvidence}
+                      />
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>
@@ -320,6 +332,20 @@ export default function LLMAdvisoryCard({
           </div>
         </>
       )}
+
+      <details className="mt-3 rounded-md border border-slate-200 bg-slate-50/40">
+        <summary className="cursor-pointer px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 hover:bg-slate-100/60">
+          Supporting detail · advisory JSON
+        </summary>
+        <div className="border-t border-slate-100 p-3">
+          <p className="mb-1.5 text-[10px] italic text-slate-400">
+            Mock advisory object. Not a real LLM API response.
+          </p>
+          <pre className="max-h-[280px] overflow-auto rounded-md border border-slate-200 bg-white p-2 text-[10px] leading-relaxed text-slate-700">
+            {JSON.stringify(llmAdvisory, null, 2)}
+          </pre>
+        </div>
+      </details>
     </section>
   );
 }

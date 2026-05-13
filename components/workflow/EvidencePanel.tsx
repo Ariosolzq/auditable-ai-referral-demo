@@ -64,7 +64,7 @@ export default function EvidencePanel({
             Evidence Package
           </h2>
           <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-slate-400">
-            Supports rule and LLM claims
+            Selecting a chip highlights supporting evidence
           </span>
         </div>
         {selectedCount > 0 && (

@@ -11,6 +11,7 @@ import type {
 type Props = {
   ruleEvaluation: RuleEvaluation;
   onSelectEvidence?: (ids: string[]) => void;
+  selectedEvidenceIds?: string[];
 };
 
 function Badge({
@@ -61,6 +62,12 @@ function severityTone(s: string): string {
     return "bg-rose-50 text-rose-800 border-rose-200";
   if (s === "medium") return "bg-amber-50 text-amber-800 border-amber-200";
   return "bg-slate-100 text-slate-700 border-slate-200";
+}
+
+function rowClass(related: boolean): string {
+  return related
+    ? "rounded-md border border-amber-300 border-l-4 border-l-amber-500 bg-amber-50/50 p-2.5 text-sm shadow-sm"
+    : "rounded-md border border-slate-100 bg-slate-50/50 p-2.5 text-sm";
 }
 
 function BindingCue({ count }: { count: number }) {
@@ -119,12 +126,14 @@ function SupportingEvidence({
 function ReasonRow({
   item,
   onSelectEvidence,
+  related,
 }: {
   item: ReasonCode;
   onSelectEvidence?: (ids: string[]) => void;
+  related: boolean;
 }) {
   return (
-    <li className="rounded-md border border-slate-100 bg-slate-50/50 p-2.5 text-sm">
+    <li className={rowClass(related)}>
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         <Badge className={severityTone(item.severity)}>{item.severity}</Badge>
         <code className="text-xs text-slate-700">{item.code}</code>
@@ -144,12 +153,14 @@ function ReasonRow({
 function MissingFieldRow({
   item,
   onSelectEvidence,
+  related,
 }: {
   item: MissingField;
   onSelectEvidence?: (ids: string[]) => void;
+  related: boolean;
 }) {
   return (
-    <li className="rounded-md border border-slate-100 bg-slate-50/50 p-2.5 text-sm">
+    <li className={rowClass(related)}>
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         <Badge className={severityTone(item.severity)}>{item.severity}</Badge>
         <code className="text-xs text-slate-700">{item.field}</code>
@@ -171,12 +182,14 @@ function MissingFieldRow({
 function ConflictRow({
   item,
   onSelectEvidence,
+  related,
 }: {
   item: ConflictFlag;
   onSelectEvidence?: (ids: string[]) => void;
+  related: boolean;
 }) {
   return (
-    <li className="rounded-md border border-slate-100 bg-slate-50/50 p-2.5 text-sm">
+    <li className={rowClass(related)}>
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         <Badge className={severityTone(item.severity)}>{item.severity}</Badge>
         <code className="text-xs text-slate-700">{item.code}</code>
@@ -195,8 +208,13 @@ function ConflictRow({
 export default function RuleEvaluationCard({
   ruleEvaluation,
   onSelectEvidence,
+  selectedEvidenceIds,
 }: Props) {
   const re = ruleEvaluation;
+  const selectedSet = new Set(selectedEvidenceIds ?? []);
+  const isRelated = (ids: string[]): boolean =>
+    selectedSet.size > 0 && ids.some((id) => selectedSet.has(id));
+
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
@@ -232,6 +250,7 @@ export default function RuleEvaluationCard({
                 key={r.code}
                 item={r}
                 onSelectEvidence={onSelectEvidence}
+                related={isRelated(r.supportingEvidenceIds)}
               />
             ))}
           </ul>
@@ -249,6 +268,7 @@ export default function RuleEvaluationCard({
                 key={m.field}
                 item={m}
                 onSelectEvidence={onSelectEvidence}
+                related={isRelated(m.supportingEvidenceIds)}
               />
             ))}
           </ul>
@@ -266,6 +286,7 @@ export default function RuleEvaluationCard({
                 key={cf.code}
                 item={cf}
                 onSelectEvidence={onSelectEvidence}
+                related={isRelated(cf.supportingEvidenceIds)}
               />
             ))}
           </ul>
@@ -285,6 +306,7 @@ export default function RuleEvaluationCard({
                 key={r.code}
                 item={r}
                 onSelectEvidence={onSelectEvidence}
+                related={isRelated(r.supportingEvidenceIds)}
               />
             ))}
           </ul>
