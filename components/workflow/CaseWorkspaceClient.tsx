@@ -21,22 +21,6 @@ type Props = {
   caseData: ReferralCase;
 };
 
-function Badge({
-  children,
-  className = "",
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <span
-      className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium ${className}`}
-    >
-      {children}
-    </span>
-  );
-}
-
 function statusTone(v: string): string {
   if (v === "accepted" || v === "ACCEPT" || v === "auto_accept")
     return "bg-emerald-50 text-emerald-800 border-emerald-200";
@@ -66,6 +50,78 @@ function riskTone(level: ReferralCase["riskLevel"]): string {
   if (level === "high") return "bg-rose-50 text-rose-800 border-rose-200";
   if (level === "medium") return "bg-amber-50 text-amber-800 border-amber-200";
   return "bg-slate-100 text-slate-700 border-slate-200";
+}
+
+function Chip({
+  label,
+  value,
+  tone,
+  mono = false,
+}: {
+  label: string;
+  value: ReactNode;
+  tone?: string;
+  mono?: boolean;
+}) {
+  const baseClass = tone ?? "border-slate-200 bg-white text-slate-700";
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded border px-2 py-0.5 text-xs ${baseClass}`}
+    >
+      <span className="text-[9px] font-semibold uppercase tracking-[0.12em] opacity-70">
+        {label}
+      </span>
+      <span className={mono ? "font-mono text-[11px]" : "font-medium"}>
+        {value}
+      </span>
+    </span>
+  );
+}
+
+function DecisionCell({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone: string;
+}) {
+  return (
+    <div className="px-3 py-2">
+      <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+        {label}
+      </div>
+      <div className="mt-1">
+        <span
+          className={`inline-flex items-center rounded border px-2 py-0.5 text-xs font-semibold ${tone}`}
+        >
+          {value}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function ZoneHeading({
+  letter,
+  title,
+  phase,
+}: {
+  letter: string;
+  title: string;
+  phase: string;
+}) {
+  return (
+    <h2 className="flex flex-wrap items-baseline gap-2 px-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+      <span>
+        {letter} &middot; {title}
+      </span>
+      <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium normal-case tracking-normal text-slate-600">
+        phase: {phase}
+      </span>
+    </h2>
+  );
 }
 
 export default function CaseWorkspaceClient({
@@ -105,20 +161,29 @@ export default function CaseWorkspaceClient({
     dispatch({ type: "RESET_CASE", initialCase });
   };
 
-  const finalText = caseData.finalDecision?.decision ?? "Pending";
+  const finalText = caseData.finalDecision?.decision ?? "pending";
   const finalTone = caseData.finalDecision
     ? statusTone(caseData.finalDecision.decision)
     : "bg-slate-100 text-slate-500 border-slate-200";
+
+  const showCaseCContext =
+    caseData.id === "case-c" && !caseData.finalDecision;
 
   return (
     <div className="space-y-6">
       <header className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="space-y-1">
+          <div className="min-w-0 space-y-1">
             <h1 className="text-xl font-semibold text-slate-900">
               {caseData.title}
             </h1>
             <p className="text-sm text-slate-600">{caseData.description}</p>
+            {showCaseCContext && (
+              <p className="text-sm font-medium text-slate-800">
+                Rule decided REJECT. The case is waiting for human
+                confirmation.
+              </p>
+            )}
           </div>
           <button
             type="button"
@@ -129,112 +194,69 @@ export default function CaseWorkspaceClient({
           </button>
         </div>
 
-        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-          <div className="flex items-center gap-2">
-            <span className="text-slate-500">Status:</span>
-            <Badge className={statusTone(caseData.currentStatus)}>
-              {caseData.currentStatus}
-            </Badge>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-slate-500">Stage:</span>
-            <Badge className={statusTone(caseData.currentStage)}>
-              {caseData.currentStage}
-            </Badge>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-slate-500">Risk:</span>
-            <Badge className={riskTone(caseData.riskLevel)}>
-              {caseData.riskLevel}
-            </Badge>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-slate-500">Policy:</span>
-            <code className="text-xs text-slate-700">
-              {caseData.ruleEvaluation.policyBundleVersion}
-            </code>
-          </div>
+        <div className="mt-3 flex flex-wrap items-center gap-1.5">
+          <Chip
+            label="status"
+            value={caseData.currentStatus}
+            tone={statusTone(caseData.currentStatus)}
+          />
+          <Chip
+            label="stage"
+            value={caseData.currentStage}
+            tone={statusTone(caseData.currentStage)}
+          />
+          <Chip
+            label="risk"
+            value={caseData.riskLevel}
+            tone={riskTone(caseData.riskLevel)}
+          />
+          <Chip
+            label="policy"
+            value={<code>{caseData.ruleEvaluation.policyBundleVersion}</code>}
+            mono
+          />
           {caseData.llmAdvisory.status === "generated" ? (
             <>
-              <div className="flex items-center gap-2">
-                <span className="text-slate-500">Prompt:</span>
-                <code className="text-xs text-slate-700">
-                  {caseData.llmAdvisory.promptVersion}
-                </code>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-slate-500">Model:</span>
-                <code className="text-xs text-slate-700">
-                  {caseData.llmAdvisory.modelVersion}
-                </code>
-              </div>
+              <Chip
+                label="prompt"
+                value={<code>{caseData.llmAdvisory.promptVersion}</code>}
+                mono
+              />
+              <Chip
+                label="model"
+                value={<code>{caseData.llmAdvisory.modelVersion}</code>}
+                mono
+              />
             </>
           ) : (
-            <div className="flex items-center gap-2">
-              <span className="text-slate-500">LLM:</span>
-              <Badge className="border-slate-200 bg-slate-100 text-slate-700">
-                {caseData.llmAdvisory.status}
-              </Badge>
-            </div>
+            <Chip label="llm" value={caseData.llmAdvisory.status} />
           )}
         </div>
 
-        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-slate-100 pt-3 text-sm">
-          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Decision path
-          </span>
-          <div className="flex items-center gap-2">
-            <span className="text-slate-500">Rule:</span>
-            <Badge className={statusTone(caseData.ruleEvaluation.decision)}>
-              {caseData.ruleEvaluation.decision}
-            </Badge>
-          </div>
-          <span aria-hidden="true" className="text-slate-300">
-            →
-          </span>
-          <div className="flex items-center gap-2">
-            <span className="text-slate-500">Routing:</span>
-            <Badge
-              className={statusTone(caseData.ruleEvaluation.routingDecision)}
-            >
-              {caseData.ruleEvaluation.routingDecision}
-            </Badge>
-          </div>
-          <span aria-hidden="true" className="text-slate-300">
-            →
-          </span>
-          <div className="flex items-center gap-2">
-            <span className="text-slate-500">Final:</span>
-            <Badge className={finalTone}>{finalText}</Badge>
-          </div>
+        <div className="mt-3 grid grid-cols-3 divide-x divide-slate-200 overflow-hidden rounded-md border border-slate-200">
+          <DecisionCell
+            label="Rule decision"
+            value={caseData.ruleEvaluation.decision}
+            tone={statusTone(caseData.ruleEvaluation.decision)}
+          />
+          <DecisionCell
+            label="Routing decision"
+            value={caseData.ruleEvaluation.routingDecision}
+            tone={statusTone(caseData.ruleEvaluation.routingDecision)}
+          />
+          <DecisionCell
+            label="Final decision"
+            value={finalText}
+            tone={finalTone}
+          />
         </div>
       </header>
 
       <WorkflowProgressRail caseData={caseData} />
 
-      {caseData.id === "case-c" && (
-        <section
-          aria-label="Why this case matters"
-          className="rounded-md border border-amber-200 border-l-4 border-l-amber-400 bg-amber-50/50 px-4 py-3 shadow-sm"
-        >
-          <h2 className="mb-1 text-xs font-semibold uppercase tracking-wide text-amber-800">
-            Why this case matters
-          </h2>
-          <p className="text-sm text-slate-800">
-            Demonstrates the rule-first, LLM-advisory, human-override
-            boundary. The rule rejects on lapsed eligibility, policy routes
-            the case to human review, and the reviewer can override to
-            ACCEPT &mdash; which appends <code>HumanOverrideSubmitted</code>{" "}
-            and <code>FinalDecisionRecorded</code> to the audit trail.
-          </p>
-        </section>
-      )}
-
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.2fr_0.9fr]">
         <div className="space-y-4">
-          <h2 className="px-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
-            A &middot; Inputs &amp; Evidence
-          </h2>
+          <ZoneHeading letter="A" title="Inputs & Evidence" phase="input" />
           <ReferralSummaryCard referralSummary={caseData.referralSummary} />
           <NormalizedFieldsCard normalizedFields={caseData.normalizedFields} />
           <EvidencePanel
@@ -244,9 +266,7 @@ export default function CaseWorkspaceClient({
           />
         </div>
         <div className="space-y-4">
-          <h2 className="px-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
-            B &middot; Decision &amp; Review
-          </h2>
+          <ZoneHeading letter="B" title="Decision & Review" phase="action" />
           <RuleEvaluationCard
             ruleEvaluation={caseData.ruleEvaluation}
             onSelectEvidence={handleSelectEvidence}
@@ -263,9 +283,7 @@ export default function CaseWorkspaceClient({
           />
         </div>
         <div className="space-y-4">
-          <h2 className="px-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
-            C &middot; Audit Record
-          </h2>
+          <ZoneHeading letter="C" title="Audit Record" phase="record" />
           <AuditTimeline
             auditEvents={caseData.auditEvents}
             selectedAuditEventId={selectedAuditEventId}
