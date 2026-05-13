@@ -463,3 +463,86 @@ working with AI coding tools.
 - What I'd do differently:
   - separate functional completion from visual polish so UI refinement
     does not risk changing validated workflow behavior
+
+## Round A — Landing redesigned as workflow-first demo
+- Status: completed
+- Scope:
+  - rebuilt the landing page so the main visual object is a workflow
+    swimlane diagram, not a README-style explanation
+  - replaced four old explanatory sections (old SystemApproachSection,
+    DesignPrinciplesSection, DemoWalkthroughSection, and the inline
+    "What This Demo Shows" block) with a workflow-first composition
+- What changed:
+  - app/page.tsx now renders Hero → Problem → BoundaryStrip →
+    WorkflowSwimlane → CaseRail
+  - components/case-study/HeroSection.tsx — recruiter-focused hero with
+    Case C as the primary CTA
+  - components/case-study/ProblemSection.tsx — single-line sky-toned
+    callout, no card chrome
+  - components/case-study/BoundaryStrip.tsx (new) — compact mock-demo
+    boundary chips: frontend-only / no real PHI / no real LLM API /
+    no production systems / no real business decisions
+  - components/case-study/WorkflowSwimlane.tsx (new) — System / LLM /
+    Human lanes across 8 steps with explicit rule decision and
+    governance boundaries; desktop swimlane and mobile vertical stack
+  - components/case-study/CaseRail.tsx (new) — Case C featured as the
+    recommended walkthrough; Cases A and B kept visible; compact
+    Rule / LLM / Final decision triples per case
+- Key design decisions:
+  - the swimlane is the dominant visual; the landing should not read
+    like a README
+  - System / LLM / Human lanes communicate the rule-first /
+    LLM-advisory / human-governed boundary visually
+  - rule decision and governance boundaries are explicit dashed
+    overlays around the relevant steps
+  - LLM stays described as advisory only; final decision is recorded
+    after human review
+  - audit and replay are framed as engineering reliability mechanisms
+  - Case C is positioned as the recommended walkthrough across hero
+    CTA, walkthrough rail, and decision triples
+  - Case C decision-triple wording avoids asserting that a final
+    decision has been recorded before user action: "pending →
+    override ACCEPT"
+- Swimlane bug and root cause:
+  - the first Round A swimlane mixed CSS Grid auto-placement for
+    header cells, lane labels, and node cells with explicit
+    gridColumn/gridRow on the rule and governance overlay items
+  - because the overlay items claimed explicit grid areas, the auto-
+    placement cursor skipped over those cells when placing the
+    subsequent header cells and lane cells, which shifted every step
+    after step 2 one column right and visually misaligned the nodes
+- Corrected approach:
+  - made every major grid item explicit: header cells, lane labels,
+    lane bands, workflow nodes, and the two boundary overlays each
+    declare their own gridColumn and gridRow
+  - lane bands paint behind nodes; nodes paint above the band; boundary
+    overlays paint above nodes with transparent centers and dashed
+    borders
+  - mobile retains a simple vertical stack with inline boundary
+    markers, sidestepping the grid issue entirely
+- Deliberately not changed:
+  - data/cases.ts, data/replayRuns.ts
+  - types/, lib/, scripts/, tests/
+  - components/workflow/, components/replay/, components/demo/
+  - app/cases/[caseId], app/demo, app/replay
+  - package.json, vitest.config.ts, tsconfig.json, other config
+  - README.md, .claude/PROJECT_SPEC.md, CLAUDE.md
+  - no new dependencies, no route changes, no reducer or replay
+    semantics changes
+- Validation passed:
+  - npm run typecheck
+  - npm run validate:mock
+  - npm run test (9/9 reducer tests still green)
+  - npm run build (all routes still SSG/static)
+  - browser QA confirmed the corrected swimlane no longer misaligns
+    and step nodes sit in the intended lanes
+- Process note:
+  - Claude Design was more effective for visual information architecture,
+    while Claude Code was kept responsible for file merging, type/build
+    validation, and scope control.
+- Follow-up:
+  - next design target is the Case Detail visual prototype: the
+    workflow workspace at /cases/[caseId] should receive the same
+    workflow-first redesign treatment, with the swimlane vocabulary
+    extended into the live workspace rather than the current dense
+    three-column grid
