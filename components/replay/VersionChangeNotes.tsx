@@ -12,11 +12,11 @@ function NotesSection({
   items: string[];
 }) {
   return (
-    <div className="rounded-md border border-slate-100 bg-slate-50/50 p-2.5">
-      <h4 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+    <div className="rounded-md border border-slate-200 bg-white px-3 py-2">
+      <h4 className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
         {label}
       </h4>
-      <ul className="list-inside list-disc space-y-0.5 text-sm text-slate-700">
+      <ul className="list-inside list-disc space-y-0.5 text-xs leading-snug text-slate-600">
         {items.map((item, i) => (
           <li key={i}>{item}</li>
         ))}
@@ -40,9 +40,16 @@ function NotesGroup({
 }) {
   return (
     <div className="space-y-1.5">
-      <h3 className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-        {groupLabel}
-      </h3>
+      <div className="flex flex-wrap items-center gap-2">
+        <h3 className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+          {groupLabel}
+        </h3>
+        <span className="text-[10px] text-slate-400">
+          <code className="font-mono">{v1Label}</code>{" "}
+          <span aria-hidden="true">→</span>{" "}
+          <code className="font-mono">{v2Label}</code>
+        </span>
+      </div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <NotesSection label={v1Label} items={v1Items} />
         <NotesSection label={v2Label} items={v2Items} />
@@ -53,10 +60,18 @@ function NotesGroup({
 
 export default function VersionChangeNotes({ notes }: Props) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
-        Version Change Notes
-      </h2>
+    <section
+      aria-label="Version change notes"
+      className="rounded-lg border border-slate-200 bg-slate-50/60 p-4"
+    >
+      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+          Reference &middot; version change notes
+        </h2>
+        <span className="text-[10px] italic text-slate-400">
+          Read after the behavioral delta
+        </span>
+      </div>
       <div className="space-y-3">
         <NotesGroup
           groupLabel="Policy"

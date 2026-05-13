@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import ReplayClient from "@/components/replay/ReplayClient";
-import ReplayDeltaHero from "@/components/replay/ReplayDeltaHero";
 import ReplayPromotionGate from "@/components/replay/ReplayPromotionGate";
 import ReplaySummaryCards from "@/components/replay/ReplaySummaryCards";
 import VersionChangeNotes from "@/components/replay/VersionChangeNotes";
@@ -24,15 +23,6 @@ function BoundaryChip({ children }: { children: ReactNode }) {
 
 export default function ReplayPage() {
   const run = replayRuns[0];
-
-  // Primary narrative: Case C by default. If Case C is absent, fall back to
-  // ReplayClient's default-index logic (min(2, len-1)), then to the first
-  // comparison. Hero stays static for this round; table selection in
-  // ReplayClient remains independent.
-  const heroComparison =
-    run.comparisons.find((c) => c.caseId === "case-c") ??
-    run.comparisons[Math.max(0, Math.min(2, run.comparisons.length - 1))] ??
-    run.comparisons[0];
 
   return (
     <div className="space-y-5">
@@ -70,20 +60,15 @@ export default function ReplayPage() {
         </div>
       </header>
 
-      {heroComparison && (
-        <ReplayDeltaHero
-          comparison={heroComparison}
-          label="Primary narrative · Case C"
-        />
-      )}
-
       <ReplayPromotionGate
         comparisons={run.comparisons}
-        primaryCaseId={heroComparison?.caseId}
+        primaryCaseId="case-c"
       />
 
       <ReplaySummaryCards comparisons={run.comparisons} />
+
       <ReplayClient comparisons={run.comparisons} />
+
       <VersionChangeNotes notes={run.versionChangeNotes} />
     </div>
   );

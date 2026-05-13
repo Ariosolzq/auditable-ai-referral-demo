@@ -631,3 +631,169 @@ working with AI coding tools.
     the workspace before any further visual polish, so cumulative
     Round 2a–2e changes can be reviewed together against the spec
     before introducing more changes
+
+## Round 3 — Replay page redesign
+- Status: completed across three sub-rounds (R3-1, R3-2, R3-3)
+- Scope:
+  - rebuilt /replay so the page reads as a promotion-gate evaluation
+    surface, not a metrics dashboard
+  - kept ReplaySummaryCards, ReplayComparisonTable, ReplayDiffPanel,
+    VersionChangeNotes, ReplayClient as the structural baseline and
+    refined them in place, plus added two new presentational components
+- What changed:
+  - R3-1: page framing + ReplayDeltaHero + ReplayPromotionGate
+    - rewrote the /replay header as a compact promotion-gate framing:
+      title + one-line description + run/baseline/candidate metadata
+      + a 5-chip boundary row (`mock replay`,
+      `no production status update`, `no final-decision update`,
+      `no review queue update`, `pre-authored mock outputs`)
+    - added components/replay/ReplayDeltaHero.tsx — pure presentational,
+      receives one ReplayCaseComparison, renders baseline vs candidate
+      for ruleDecision / routingDecision / requiresHumanReview /
+      riskFlags, highlights changed fields via existing diff flags,
+      renders a "Potential regression" or "No regression" pill, and
+      shows comparison.diff.summary verbatim in the footer
+    - added components/replay/ReplayPromotionGate.tsx — pure
+      presentational, read-only, zero buttons, zero inputs, renders
+      four compact questions (What changed? / Why? / Potential
+      regression? / Promotion check) derived from existing comparisons
+      and diff flags; uses safe wording only (`Requires human review
+      before promotion`, `Replay does not auto-promote.`, `Potential
+      regression`)
+    - moved VersionChangeNotes to the bottom of the page so it reads
+      as reference material rather than required pre-reading
+    - R3-1 follow-up cleanup: renamed the fourth gate question from
+      `Promote?` to `Promotion check`; removed `auto_reject` from the
+      ReplayDeltaHero decisionTone helper (the type union, validator,
+      and other defensive helpers still reference it — see follow-up)
+  - R3-2: scoreboard compression + comparison table refinement +
+    structured field-deltas + JSON demotion
+    - ReplaySummaryCards: replaced the 5-card grid with a single
+      horizontal scoreboard strip; same five metrics, identical
+      derivation logic, unchanged prop signature; tones — Total cases
+      neutral, Rule/Routing/Review amber when > 0, Potential
+      regressions rose when > 0; wraps safely on small screens
+    - ReplayComparisonTable: kept all columns and prop signature
+      (`comparisons`, `selectedIdx`, `onSelectRow`); kept aria-pressed;
+      reframed as reference table with smaller kerned header and a
+      `reference · click a row to inspect` subtitle; kept regression
+      rows visually prominent (rose row tint + rose left-edge accent);
+      quieted non-regression case-title text from slate-900 to
+      slate-700; replaced the heavy slate "No regression" badge with
+      a muted em-dash plus aria-label="No regression"
+    - ReplayDiffPanel: kept interpretation block first with
+      comparison.diff.summary verbatim; added a structured
+      "Changed fields" block between interpretation and JSON, derived
+      only from existing diff flags and baseline/candidate values; each
+      delta renders field code + label + short meaning + before → after
+      badges; for Case C the routingDecision row shows
+      `human_review_required → needs_more_evidence` and the
+      requiresHumanReview row shows `true → false` plus a rose
+      `review gate changed` pill (only when true → false)
+    - JSON demotion: kept both
+      `JSON.stringify(comparison.baseline, null, 2)` and
+      `JSON.stringify(comparison.candidate, null, 2)` rendered inline
+      and never hidden behind an accordion; visually demoted inside a
+      slate-tinted container with a `Supporting detail · raw replay
+      output` kicker and a `read after the changed-fields summary
+      above` italic hint
+  - R3-3: hero/table/diff selection sync + VersionChangeNotes reskin
+    - moved ReplayDeltaHero rendering from app/replay/page.tsx into
+      ReplayClient so hero, table, and diff panel share the same
+      `selectedIdx`
+    - default selectedIdx kept at `Math.max(0, Math.min(2,
+      comparisons.length - 1))`; with the three mock cases Case C
+      remains the default selection
+    - hero label is `Primary narrative · Case C` only when the
+      selected row is the default index and the selected comparison is
+      actually case-c; otherwise `Selected comparison` — this prevents
+      misleading labels if comparison ordering ever changes
+    - clicking Case A / Case B / Case C in the comparison table now
+      updates hero, selected row tint, and diff panel together
+    - app/replay/page.tsx no longer computes heroComparison; the page
+      passes a static `primaryCaseId="case-c"` to ReplayPromotionGate
+      so the gate's "Why?" answer still highlights the Case C narrative
+      independently of the user's current table selection
+    - VersionChangeNotes reskinned as bottom reference appendix:
+      paper-tinted slate background (bg-slate-50/60), no shadow,
+      kerned slate-500 `Reference · version change notes` heading
+      plus an italic `Read after the behavioral delta` caption;
+      added an inline `policy_v1 → policy_v2` / `prompt_v1 → prompt_v2`
+      mono-coded pair on each group; smaller bullet text; **all bullet
+      copy still rendered verbatim from props** — the component
+      contributes only structural copy, no paraphrasing
+- Key design decision: replay should read as a promotion-gate
+  evaluation page, not a dashboard
+  - the page now opens with a boundary chip row, then a single
+    primary narrative (ReplayDeltaHero) showing baseline vs candidate
+    for the featured case, then four read-only governance questions
+    (ReplayPromotionGate), then the scoreboard and reference table
+  - VersionChangeNotes moved to the bottom because the policy/prompt
+    bullet lists are reference material — the user should read the
+    behavioral delta first and consult the notes second
+  - language is consistently "potential regression" and "requires
+    human review before promotion", never "confirmed failure" or
+    "policy_v2 is wrong" or "auto_reject" in user-facing copy; the
+    page never offers a Promote action because replay does not
+    promote anything
+- Key implementation decision: move ReplayDeltaHero into ReplayClient
+  so hero/table/diff share `selectedIdx`
+  - in R3-1 the hero was rendered statically from app/replay/page.tsx
+    with a server-derived Case C comparison; this kept ReplayClient
+    untouched but meant the hero and table could drift out of sync
+  - in R3-3 the hero moved into ReplayClient and reads
+    `comparisons[selectedIdx]` from the same useState that drives the
+    table and diff panel; no new state was introduced, no prop
+    signatures on ReplayComparisonTable or ReplayDiffPanel changed,
+    and the default-index logic stayed at
+    `Math.max(0, Math.min(2, comparisons.length - 1))`
+  - the label gate (`isDefaultSelection && isCaseC`) is defensive: it
+    only claims "Primary narrative · Case C" when both the default
+    index points at case-c and the selected comparison's caseId is
+    `case-c`, so future data reordering cannot produce a misleading
+    label
+- Deliberately not changed:
+  - data/cases.ts, data/replayRuns.ts — no data edits, no new fields,
+    no reordering
+  - types/referral.ts, types/replay.ts — no schema or union changes
+  - lib/caseReducer.ts, lib/eventFactory.ts, lib/statusMapping.ts
+  - scripts/validate-mock-data.ts
+  - tests/caseReducer.test.ts
+  - JSON output: every JSON.stringify call on baseline/candidate
+    payloads is unchanged
+  - no real LLM calls introduced; replay outputs remain pre-authored
+    mock fixtures
+  - no promotion action of any kind; the page renders zero buttons or
+    inputs that could be mistaken for promotion controls
+  - no production state writes, no final-decision updates from replay,
+    no review-queue updates from replay
+  - components/workflow/, components/case-study/, components/demo/
+    not modified during Round 3
+  - request_more_info still excluded from runtime; the only
+    appearances are inside the validator's R3 check that asserts its
+    absence from replay data
+- Validation passed:
+  - npm run typecheck (R3-1, R3-2, R3-3 — all green)
+  - npm run validate:mock (3 cases, 1 replay run — all green)
+  - npm run test (9/9 reducer tests still green)
+  - npm run build (all routes still SSG/static; /replay finished at
+    3.17 kB after R3-3)
+  - browser QA passed end-to-end across /, /demo, /cases/case-a,
+    /cases/case-b, /cases/case-c, /replay
+  - final QA grep on app/ and components/ found no instances of
+    `confirmed failure`, `policy_v2 is wrong`, `reject candidate`,
+    `approved by LLM`, `LLM decided`, `autonomous decision`,
+    `production EHR`, or `production payer`
+  - "real PHI" matches were all the explicit negation "no real PHI"
+    in BoundaryStrip and the /demo header; acceptable
+- Follow-up:
+  - optional small cleanup: normalize the remaining `auto_reject`
+    references in the defensive decisionTone / statusTone helpers
+    (RuleEvaluationCard, CaseWorkspaceClient, CaseCard). The token
+    still exists in types/referral.ts per PROJECT_SPEC §6.2 and in
+    scripts/validate-mock-data.ts as a guardrail, so the helpers are
+    defensible; QA classified the inconsistency as non-blocking
+  - final pre-deploy review of README.md to ensure the routes,
+    interactions, and boundary language match the redesigned pages
+  - confirm Vercel Hobby deploy still builds and renders the new
+    /replay layout before announcing the demo
