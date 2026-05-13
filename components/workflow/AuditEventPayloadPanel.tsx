@@ -23,6 +23,64 @@ function Chip({
   );
 }
 
+function describeAuditEvent(event: AuditEvent): string {
+  const p = (event.payload ?? {}) as Record<string, unknown>;
+
+  switch (event.eventType) {
+    case "ReferralCreated":
+      return "This event records the intake of the referral into the workflow.";
+    case "WorkflowStarted":
+      return "This event records the workflow instance starting for this referral.";
+    case "FieldsNormalized":
+      return "This event records the normalized referral fields used by downstream rule and advisory steps.";
+    case "EvidencePackageBuilt":
+      return "This event records the evidence package assembled for rule evaluation and advisory review.";
+    case "RuleDecisionGenerated": {
+      const decision =
+        typeof p.decision === "string" ? p.decision : null;
+      const routing =
+        typeof p.routingDecision === "string" ? p.routingDecision : null;
+      const policy =
+        typeof p.policyBundleVersion === "string"
+          ? p.policyBundleVersion
+          : null;
+      if (decision && routing && policy) {
+        return `This event records the deterministic rule output: ${decision}, routed to ${routing} under ${policy}.`;
+      }
+      if (decision && routing) {
+        return `This event records the deterministic rule output: ${decision}, routed to ${routing}.`;
+      }
+      return "This event records the deterministic rule output.";
+    }
+    case "LLMReviewRequested":
+      return "This event records that an advisory LLM review was requested. It does not set the final decision.";
+    case "LLMReviewCompleted":
+      return "This event records the advisory LLM output. It is evidence-bound and does not set the final decision.";
+    case "LLMReviewSkipped":
+      return "This event records that LLM advisory review was skipped for this case.";
+    case "HumanReviewRequested":
+      return "This event records that the case was routed to human review before finalization.";
+    case "HumanReviewSubmitted":
+      return "This event records the reviewer's submitted action.";
+    case "HumanOverrideSubmitted":
+      return "This event records a human override. The override is reviewer-controlled and audit-recorded.";
+    case "FinalDecisionRecorded": {
+      const finalDecision =
+        typeof p.finalDecision === "string"
+          ? p.finalDecision
+          : typeof p.decision === "string"
+            ? p.decision
+            : null;
+      if (finalDecision) {
+        return `This event records the final decision: ${finalDecision}.`;
+      }
+      return "This event records the final decision for this case.";
+    }
+    default:
+      return "This event records a workflow transition and its payload.";
+  }
+}
+
 export default function AuditEventPayloadPanel({
   auditEvents,
   selectedAuditEventId,
@@ -44,6 +102,14 @@ export default function AuditEventPayloadPanel({
       </div>
       {event ? (
         <div className="space-y-3 text-sm">
+          <div className="rounded-md border border-slate-200 bg-slate-50/60 p-3">
+            <h4 className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+              What this event means
+            </h4>
+            <p className="text-sm leading-snug text-slate-800">
+              {describeAuditEvent(event)}
+            </p>
+          </div>
           <div className="rounded-md border border-amber-300 border-l-4 border-l-amber-500 bg-amber-50/60 p-3">
             <div className="flex flex-wrap items-center gap-1.5">
               <Chip label="event" value={event.eventType} />
