@@ -9,6 +9,7 @@ import LLMAdvisoryCard from "@/components/workflow/LLMAdvisoryCard";
 import NormalizedFieldsCard from "@/components/workflow/NormalizedFieldsCard";
 import ReferralSummaryCard from "@/components/workflow/ReferralSummaryCard";
 import RuleEvaluationCard from "@/components/workflow/RuleEvaluationCard";
+import WorkflowProgressRail from "@/components/workflow/WorkflowProgressRail";
 import { buildInitialState, caseReducer } from "@/lib/caseReducer";
 import type {
   FinalDecisionValue,
@@ -37,15 +38,24 @@ function Badge({
 }
 
 function statusTone(v: string): string {
-  if (v === "accepted" || v === "ACCEPT")
+  if (v === "accepted" || v === "ACCEPT" || v === "auto_accept")
     return "bg-emerald-50 text-emerald-800 border-emerald-200";
-  if (v === "rejected" || v === "REJECT" || v === "failed")
+  if (
+    v === "rejected" ||
+    v === "REJECT" ||
+    v === "auto_reject" ||
+    v === "failed"
+  )
     return "bg-rose-50 text-rose-800 border-rose-200";
   if (
     v === "needs_review" ||
     v === "waiting_for_human_review" ||
     v === "in_progress" ||
-    v === "pending"
+    v === "pending" ||
+    v === "NEEDS_REVIEW" ||
+    v === "UNCERTAIN" ||
+    v === "human_review_required" ||
+    v === "needs_more_evidence"
   ) {
     return "bg-amber-50 text-amber-800 border-amber-200";
   }
@@ -118,6 +128,7 @@ export default function CaseWorkspaceClient({
             Reset Case
           </button>
         </div>
+
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
           <div className="flex items-center gap-2">
             <span className="text-slate-500">Status:</span>
@@ -166,6 +177,32 @@ export default function CaseWorkspaceClient({
               </Badge>
             </div>
           )}
+        </div>
+
+        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-slate-100 pt-3 text-sm">
+          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Decision path
+          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-slate-500">Rule:</span>
+            <Badge className={statusTone(caseData.ruleEvaluation.decision)}>
+              {caseData.ruleEvaluation.decision}
+            </Badge>
+          </div>
+          <span aria-hidden="true" className="text-slate-300">
+            →
+          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-slate-500">Routing:</span>
+            <Badge
+              className={statusTone(caseData.ruleEvaluation.routingDecision)}
+            >
+              {caseData.ruleEvaluation.routingDecision}
+            </Badge>
+          </div>
+          <span aria-hidden="true" className="text-slate-300">
+            →
+          </span>
           <div className="flex items-center gap-2">
             <span className="text-slate-500">Final:</span>
             <Badge className={finalTone}>{finalText}</Badge>
@@ -173,8 +210,31 @@ export default function CaseWorkspaceClient({
         </div>
       </header>
 
+      <WorkflowProgressRail caseData={caseData} />
+
+      {caseData.id === "case-c" && (
+        <section
+          aria-label="Why this case matters"
+          className="rounded-md border border-amber-200 border-l-4 border-l-amber-400 bg-amber-50/50 px-4 py-3 shadow-sm"
+        >
+          <h2 className="mb-1 text-xs font-semibold uppercase tracking-wide text-amber-800">
+            Why this case matters
+          </h2>
+          <p className="text-sm text-slate-800">
+            Demonstrates the rule-first, LLM-advisory, human-override
+            boundary. The rule rejects on lapsed eligibility, policy routes
+            the case to human review, and the reviewer can override to
+            ACCEPT &mdash; which appends <code>HumanOverrideSubmitted</code>{" "}
+            and <code>FinalDecisionRecorded</code> to the audit trail.
+          </p>
+        </section>
+      )}
+
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.2fr_0.9fr]">
         <div className="space-y-4">
+          <h2 className="px-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            A &middot; Inputs &amp; Evidence
+          </h2>
           <ReferralSummaryCard referralSummary={caseData.referralSummary} />
           <NormalizedFieldsCard normalizedFields={caseData.normalizedFields} />
           <EvidencePanel
@@ -184,6 +244,9 @@ export default function CaseWorkspaceClient({
           />
         </div>
         <div className="space-y-4">
+          <h2 className="px-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            B &middot; Decision &amp; Review
+          </h2>
           <RuleEvaluationCard
             ruleEvaluation={caseData.ruleEvaluation}
             onSelectEvidence={handleSelectEvidence}
@@ -200,6 +263,9 @@ export default function CaseWorkspaceClient({
           />
         </div>
         <div className="space-y-4">
+          <h2 className="px-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            C &middot; Audit Record
+          </h2>
           <AuditTimeline
             auditEvents={caseData.auditEvents}
             selectedAuditEventId={selectedAuditEventId}
