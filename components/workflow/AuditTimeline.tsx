@@ -39,7 +39,7 @@ export default function AuditTimeline({
         {auditEvents.map((e) => {
           const isSelected = e.id === selectedAuditEventId;
           const tone = isSelected
-            ? "border-sky-300 bg-sky-50 ring-1 ring-sky-200"
+            ? "border-amber-300 bg-amber-50 ring-1 ring-amber-200"
             : "border-slate-100 bg-slate-50/50 hover:border-slate-200 hover:bg-slate-100/60";
           return (
             <li key={e.id}>

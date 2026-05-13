@@ -1,9 +1,27 @@
+import type { ReactNode } from "react";
 import type { AuditEvent } from "@/types/referral";
 
 type Props = {
   auditEvents: AuditEvent[];
   selectedAuditEventId?: string | null;
 };
+
+function Chip({
+  label,
+  value,
+}: {
+  label: string;
+  value: ReactNode;
+}) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded border border-amber-200 bg-white px-2 py-0.5 text-xs">
+      <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-amber-700">
+        {label}
+      </span>
+      <span className="font-medium text-slate-800">{value}</span>
+    </span>
+  );
+}
 
 export default function AuditEventPayloadPanel({
   auditEvents,
@@ -20,36 +38,47 @@ export default function AuditEventPayloadPanel({
         Payload Preview
       </h2>
       {event ? (
-        <div className="space-y-2 text-sm">
-          <div className="space-y-1 text-xs text-slate-500">
-            <div>
-              Event ID: <code>{event.id}</code>
+        <div className="space-y-3 text-sm">
+          <div className="rounded-md border border-amber-200 bg-amber-50/60 p-3">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <Chip label="event" value={event.eventType} />
+              <Chip label="actor" value={event.actor} />
+              {event.causationEventId && (
+                <Chip
+                  label="caused by"
+                  value={
+                    <code className="font-mono text-[11px]">
+                      {event.causationEventId}
+                    </code>
+                  }
+                />
+              )}
             </div>
-            <div>
-              Event type:{" "}
-              <span className="text-slate-700">{event.eventType}</span>
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-slate-600">
+              <span>
+                id:{" "}
+                <code className="font-mono text-slate-700">{event.id}</code>
+              </span>
+              <span>{event.timestamp}</span>
+              <span>
+                corr:{" "}
+                <code className="font-mono text-slate-700">
+                  {event.correlationId}
+                </code>
+              </span>
+              <span>
+                wf:{" "}
+                <code className="font-mono text-slate-700">
+                  {event.workflowInstanceId}
+                </code>
+              </span>
+              <span>
+                schema:{" "}
+                <code className="font-mono text-slate-700">
+                  {event.schemaVersion}
+                </code>
+              </span>
             </div>
-            <div>
-              Actor: <span className="text-slate-700">{event.actor}</span>
-            </div>
-            <div>
-              Timestamp:{" "}
-              <span className="text-slate-700">{event.timestamp}</span>
-            </div>
-            <div>
-              Correlation ID: <code>{event.correlationId}</code>
-            </div>
-            <div>
-              Workflow instance: <code>{event.workflowInstanceId}</code>
-            </div>
-            <div>
-              Schema version: <code>{event.schemaVersion}</code>
-            </div>
-            {event.causationEventId && (
-              <div>
-                Causation event: <code>{event.causationEventId}</code>
-              </div>
-            )}
           </div>
           <pre className="overflow-x-auto rounded-md border border-slate-200 bg-slate-50 p-3 text-xs text-slate-800">
             {JSON.stringify(event.payload, null, 2)}

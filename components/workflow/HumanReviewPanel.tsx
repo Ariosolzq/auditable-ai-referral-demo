@@ -91,10 +91,24 @@ export default function HumanReviewPanel({
   };
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
-        Human Review
-      </h2>
+    <section className="rounded-lg border border-slate-200 border-l-4 border-l-sky-500 bg-white p-4 shadow-sm">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
+          Human Review
+        </h2>
+        <span
+          aria-label="Governance boundary"
+          className="inline-flex items-center gap-1 rounded border border-sky-200 bg-sky-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-700"
+        >
+          <span
+            aria-hidden="true"
+            className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-sky-500 text-[9px] font-bold text-white"
+          >
+            G
+          </span>
+          Governance
+        </span>
+      </div>
 
       <div className="mb-3 flex items-center justify-between gap-3 text-sm">
         <span className="text-slate-500">Status</span>
@@ -102,6 +116,12 @@ export default function HumanReviewPanel({
           {humanReview.status}
         </Badge>
       </div>
+
+      {humanReview.status !== "not_required" && (
+        <p className="mb-3 rounded-md border-l-2 border-sky-300 bg-sky-50/50 px-3 py-2 text-xs text-slate-700">
+          Only human review can record the final decision in this case.
+        </p>
+      )}
 
       {humanReview.status === "not_required" ? (
         <div className="rounded-md border border-slate-100 bg-slate-50/50 p-3 text-sm text-slate-700">
