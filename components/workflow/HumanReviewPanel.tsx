@@ -45,11 +45,15 @@ function statusTone(s: HumanReview["status"]): string {
   return "bg-amber-50 text-amber-800 border-amber-200";
 }
 
-function defaultFinalDecision(ruleDecision: RuleDecision): FinalDecisionValue {
+// Returns null when the rule decision does not commit to ACCEPT or REJECT,
+// so the reviewer must make an explicit choice before submitting.
+function defaultFinalDecision(
+  ruleDecision: RuleDecision,
+): FinalDecisionValue | null {
   if (ruleDecision === "ACCEPT" || ruleDecision === "REJECT") {
     return ruleDecision;
   }
-  return "ACCEPT";
+  return null;
 }
 
 function FieldRow({ label, value }: { label: string; value: ReactNode }) {
@@ -102,6 +106,30 @@ function GovernanceConstraint() {
   );
 }
 
+function NotRequiredPanel({
+  reason,
+}: {
+  reason: string;
+}) {
+  return (
+    <section
+      aria-label="Human review status"
+      className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm"
+    >
+      <div className="flex flex-wrap items-center gap-2">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
+          Human Review
+        </h2>
+        <Badge className={statusTone("not_required")}>not_required</Badge>
+      </div>
+      <p className="mt-1.5 text-sm font-medium text-slate-900">
+        Human review not required for this case.
+      </p>
+      <p className="text-sm text-slate-600">Reason: {reason}</p>
+    </section>
+  );
+}
+
 export default function HumanReviewPanel({
   humanReview,
   ruleDecision,
@@ -109,19 +137,25 @@ export default function HumanReviewPanel({
 }: Props) {
   const [reviewerAction, setReviewerAction] =
     useState<ReviewerAction>("confirm");
-  const [finalDecision, setFinalDecision] = useState<FinalDecisionValue>(
-    defaultFinalDecision(ruleDecision),
+  const [finalDecision, setFinalDecision] = useState<FinalDecisionValue | null>(
+    () => defaultFinalDecision(ruleDecision),
   );
   const [reviewerNote, setReviewerNote] = useState("");
   const [overrideReason, setOverrideReason] = useState("");
 
+  if (humanReview.status === "not_required") {
+    return <NotRequiredPanel reason={humanReview.reason} />;
+  }
+
   const overrideBlocked =
     reviewerAction === "override" && overrideReason.trim().length === 0;
-  const canSubmit = !overrideBlocked && onSubmitReview !== undefined;
+  const finalDecisionMissing = finalDecision === null;
+  const canSubmit =
+    !overrideBlocked && !finalDecisionMissing && onSubmitReview !== undefined;
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!canSubmit || !onSubmitReview) return;
+    if (!canSubmit || !onSubmitReview || finalDecision === null) return;
     onSubmitReview({
       reviewerAction,
       finalDecision,
@@ -138,16 +172,9 @@ export default function HumanReviewPanel({
     >
       <GovernanceHeader status={humanReview.status} />
 
-      {humanReview.status !== "not_required" && <GovernanceConstraint />}
+      <GovernanceConstraint />
 
-      {humanReview.status === "not_required" ? (
-        <div className="rounded-md border border-slate-200 bg-white p-3 text-sm text-slate-700">
-          <p className="font-medium text-slate-900">
-            Human review not required for this case.
-          </p>
-          <p className="mt-1 text-slate-700">Reason: {humanReview.reason}</p>
-        </div>
-      ) : humanReview.status === "submitted" ? (
+      {humanReview.status === "submitted" ? (
         <div className="rounded-md border border-slate-200 bg-white p-3">
           <div className="grid grid-cols-1 gap-x-6 gap-y-1.5 sm:grid-cols-2">
             <FieldRow label="Review type" value={humanReview.reviewType} />
@@ -271,7 +298,7 @@ export default function HumanReviewPanel({
               </label>
             </div>
 
-            <div className="flex items-end justify-end lg:pt-5">
+            <div className="flex flex-col items-end gap-1 lg:pt-5">
               <button
                 type="submit"
                 disabled={!canSubmit}
@@ -279,6 +306,11 @@ export default function HumanReviewPanel({
               >
                 Submit review
               </button>
+              {finalDecisionMissing && (
+                <span className="text-[10px] italic text-slate-500">
+                  Select a final decision to submit.
+                </span>
+              )}
             </div>
           </div>
         </form>
