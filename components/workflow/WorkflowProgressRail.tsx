@@ -61,33 +61,126 @@ function deriveStages(caseData: ReferralCase): RailStage[] {
   return stages;
 }
 
-function dotClass(state: RailState): string {
+type TileCopy = {
+  phase: string;
+  title: string;
+  detail: string;
+};
+
+// Render-only mapping that produces the displayed copy for each tile.
+// Reads from deriveStages output for case-specific details and from
+// caseData.evidenceRecords.length for the Input tile's count.
+// Does not change how stages are derived.
+function buildTileCopy(
+  caseData: ReferralCase,
+  stages: RailStage[],
+): TileCopy[] {
+  const recordCount = caseData.evidenceRecords.length;
+  return [
+    {
+      phase: "Input",
+      title: "Evidence built",
+      detail: `${recordCount} record${recordCount === 1 ? "" : "s"} · normalized`,
+    },
+    {
+      phase: "Decision",
+      title: "Rule decision",
+      detail: stages[1].detail,
+    },
+    {
+      phase: "Advisory",
+      title: "LLM advisory",
+      detail: stages[2].detail,
+    },
+    {
+      phase: "Governance",
+      title: "Human review",
+      detail: stages[3].detail,
+    },
+    {
+      phase: "Record",
+      title: "Final decision",
+      detail: stages[4].detail,
+    },
+  ];
+}
+
+function tileClass(state: RailState): string {
   switch (state) {
     case "done":
-      return "bg-emerald-500";
+      return "border-slate-200 bg-white";
     case "active":
-      return "bg-amber-500";
+      return "border-sky-400 bg-sky-50/70 ring-2 ring-sky-100";
     case "pending":
-      return "bg-slate-300";
+      return "border-slate-200 bg-slate-50/60";
     case "skipped":
-      return "bg-slate-300 opacity-60";
+      return "border-slate-200 bg-white";
     case "failed":
-      return "bg-rose-500";
+      return "border-rose-300 bg-rose-50/70";
   }
 }
 
-function detailToneClass(state: RailState): string {
+function phaseLabelClass(state: RailState): string {
+  if (state === "pending" || state === "skipped") return "text-slate-400";
+  if (state === "active") return "text-sky-700";
+  if (state === "failed") return "text-rose-700";
+  return "text-slate-500";
+}
+
+function titleClass(state: RailState): string {
+  if (state === "pending" || state === "skipped") return "text-slate-500";
+  return "text-slate-900";
+}
+
+function detailClass(state: RailState): string {
   switch (state) {
     case "done":
       return "text-emerald-700";
     case "active":
-      return "text-amber-700";
+      return "text-sky-800 font-semibold";
     case "pending":
-      return "text-slate-500";
+      return "text-slate-400 italic";
     case "skipped":
-      return "italic text-slate-500";
+      return "italic text-slate-400";
     case "failed":
       return "text-rose-700";
+  }
+}
+
+type IconSpec = { glyph: string; toneClass: string; srLabel: string };
+
+function stateIcon(state: RailState): IconSpec {
+  switch (state) {
+    case "done":
+      return {
+        glyph: "✓",
+        toneClass: "bg-emerald-100 text-emerald-700",
+        srLabel: "Done",
+      };
+    case "active":
+      return {
+        glyph: "●",
+        toneClass: "bg-sky-500 text-white",
+        srLabel: "Active",
+      };
+    case "pending":
+      return {
+        glyph: "○",
+        toneClass: "bg-slate-100 text-slate-400",
+        srLabel: "Pending",
+      };
+    case "skipped":
+      return {
+        glyph: "–",
+        toneClass: "bg-slate-100 text-slate-400",
+        srLabel: "Skipped",
+      };
+    case "failed":
+      return {
+        glyph: "✕",
+        toneClass: "bg-rose-100 text-rose-700",
+        srLabel: "Failed",
+      };
   }
 }
 
@@ -97,34 +190,51 @@ type Props = {
 
 export default function WorkflowProgressRail({ caseData }: Props) {
   const stages = deriveStages(caseData);
+  const copy = buildTileCopy(caseData, stages);
 
   return (
     <section
       aria-label="Workflow progress"
-      className="rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm"
+      className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm sm:p-4"
     >
-      <ol className="flex flex-wrap items-center gap-x-2 gap-y-2">
-        {stages.map((stage, i) => (
-          <li key={stage.label} className="flex items-center gap-2">
-            <span
-              aria-hidden="true"
-              className={`inline-block h-2.5 w-2.5 shrink-0 rounded-full ${dotClass(stage.state)}`}
-            />
-            <span className="flex items-baseline gap-1.5">
-              <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                {stage.label}
-              </span>
-              <span className={`text-xs ${detailToneClass(stage.state)}`}>
-                {stage.detail}
-              </span>
-            </span>
-            {i < stages.length - 1 && (
-              <span aria-hidden="true" className="px-1 text-slate-300">
-                →
-              </span>
-            )}
-          </li>
-        ))}
+      <ol className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
+        {stages.map((stage, i) => {
+          const icon = stateIcon(stage.state);
+          const isActive = stage.state === "active";
+          return (
+            <li
+              key={copy[i].phase}
+              className={`relative rounded-md border p-3 ${tileClass(stage.state)}`}
+            >
+              {isActive && (
+                <span className="absolute -top-2.5 left-3 inline-flex items-center rounded bg-sky-500 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-white shadow-sm">
+                  You are here
+                </span>
+              )}
+              <div className="flex items-center justify-between gap-2">
+                <span
+                  className={`text-[10px] font-semibold uppercase tracking-[0.16em] ${phaseLabelClass(stage.state)}`}
+                >
+                  {i + 1}. {copy[i].phase}
+                </span>
+                <span
+                  aria-label={icon.srLabel}
+                  className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold ${icon.toneClass}`}
+                >
+                  <span aria-hidden="true">{icon.glyph}</span>
+                </span>
+              </div>
+              <p
+                className={`mt-1.5 text-sm font-semibold leading-tight ${titleClass(stage.state)}`}
+              >
+                {copy[i].title}
+              </p>
+              <p className={`mt-1 text-xs leading-tight ${detailClass(stage.state)}`}>
+                {copy[i].detail}
+              </p>
+            </li>
+          );
+        })}
       </ol>
     </section>
   );
