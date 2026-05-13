@@ -267,11 +267,70 @@ export default function CaseWorkspaceClient({
           phase="input → action"
         />
         <ReferralSummaryCard referralSummary={caseData.referralSummary} />
+        <section
+          aria-label="Evidence-linked review map"
+          className="rounded-md border border-slate-200 bg-slate-50/60 p-3"
+        >
+          <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-700">
+              Evidence-linked review map
+            </h3>
+            <span className="text-[10px] italic text-slate-500">
+              Select any evidence, rule reason, or LLM advisory item to see the
+              linked claims across panels.
+            </span>
+          </div>
+          <ol className="grid grid-cols-1 gap-2 md:grid-cols-3">
+            <li className="rounded-md border border-slate-200 bg-white p-2.5">
+              <div className="flex items-center gap-1.5">
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 text-[11px] font-semibold text-slate-700">
+                  1
+                </span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-700">
+                  Source evidence
+                </span>
+              </div>
+              <p className="mt-1 text-xs leading-snug text-slate-600">
+                Referral fields, document extracts, and portal records become
+                the shared evidence package.
+              </p>
+            </li>
+            <li className="rounded-md border border-slate-200 bg-white p-2.5">
+              <div className="flex items-center gap-1.5">
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 text-[11px] font-semibold text-slate-700">
+                  2
+                </span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-700">
+                  Deterministic rule use
+                </span>
+              </div>
+              <p className="mt-1 text-xs leading-snug text-slate-600">
+                Rule outputs cite evidence IDs, so reason codes can be traced
+                back to source records.
+              </p>
+            </li>
+            <li className="rounded-md border border-slate-200 bg-white p-2.5">
+              <div className="flex items-center gap-1.5">
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 text-[11px] font-semibold text-slate-700">
+                  3
+                </span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-700">
+                  LLM advisory use
+                </span>
+              </div>
+              <p className="mt-1 text-xs leading-snug text-slate-600">
+                The LLM can summarize and flag risk only as advisory output
+                bound to evidence; it cannot write finalDecision.
+              </p>
+            </li>
+          </ol>
+        </section>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
           <EvidencePanel
             evidenceRecords={caseData.evidenceRecords}
             selectedEvidenceIds={selectedEvidenceIds}
             onClearSelection={handleClearSelection}
+            onSelectEvidence={handleSelectEvidence}
             normalizedFields={caseData.normalizedFields}
           />
           <RuleEvaluationCard

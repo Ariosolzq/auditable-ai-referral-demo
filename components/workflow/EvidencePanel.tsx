@@ -7,6 +7,7 @@ type Props = {
   evidenceRecords: EvidenceRecord[];
   selectedEvidenceIds?: string[];
   onClearSelection?: () => void;
+  onSelectEvidence?: (ids: string[]) => void;
   normalizedFields?: ReferralCase["normalizedFields"];
 };
 
@@ -48,6 +49,7 @@ export default function EvidencePanel({
   evidenceRecords,
   selectedEvidenceIds = [],
   onClearSelection,
+  onSelectEvidence,
   normalizedFields,
 }: Props) {
   const selectedCount = selectedEvidenceIds.length;
@@ -108,15 +110,16 @@ export default function EvidencePanel({
       <ul className="space-y-2">
         {evidenceRecords.map((e) => {
           const selected = selectedSet.has(e.id);
-          return (
-            <li
-              key={e.id}
-              className={`rounded-md border p-3 text-sm transition ${
-                selected
-                  ? "border-sky-300 border-l-4 border-l-amber-400 bg-sky-50 ring-1 ring-sky-200"
-                  : "border-slate-100 bg-slate-50/50"
-              }`}
-            >
+          const baseClass = `block w-full rounded-md border p-3 text-left text-sm transition ${
+            selected
+              ? "border-sky-300 border-l-4 border-l-amber-400 bg-sky-50 ring-1 ring-sky-200"
+              : "border-slate-100 border-l-4 border-l-transparent bg-slate-50/50"
+          }`;
+          const interactiveClass = onSelectEvidence
+            ? `${baseClass} cursor-pointer hover:border-sky-200 hover:bg-sky-50/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500`
+            : baseClass;
+          const content = (
+            <>
               <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
                 <code className="text-xs text-slate-600">{e.id}</code>
                 <div className="flex gap-1">
@@ -138,6 +141,22 @@ export default function EvidencePanel({
               <div className="mt-1 text-xs text-slate-500">
                 field: <code>{e.field}</code> · {e.sourceType} · {e.sourceName}
               </div>
+            </>
+          );
+          return (
+            <li key={e.id}>
+              {onSelectEvidence ? (
+                <button
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => onSelectEvidence([e.id])}
+                  className={interactiveClass}
+                >
+                  {content}
+                </button>
+              ) : (
+                <div className={baseClass}>{content}</div>
+              )}
             </li>
           );
         })}
