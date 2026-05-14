@@ -6,6 +6,16 @@ export default function ProblemSection() {
     >
       <p className="text-sm leading-snug text-slate-700 sm:text-[15px]">
         <span className="mr-2 align-middle text-[10px] font-semibold uppercase tracking-[0.18em] text-sky-700">
+          Referral
+        </span>
+        <span className="align-middle">
+          In this demo, a referral is an incoming healthcare service request
+          that must be checked against eligibility, payer, authorization, and
+          document evidence before it moves forward.
+        </span>
+      </p>
+      <p className="mt-1.5 text-sm leading-snug text-slate-700 sm:text-[15px]">
+        <span className="mr-2 align-middle text-[10px] font-semibold uppercase tracking-[0.18em] text-sky-700">
           Problem
         </span>
         <span className="align-middle">
