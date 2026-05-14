@@ -100,17 +100,20 @@ export default function ReplayComparisonTable({
   onSelectRow,
 }: Props) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
-          Comparison Table
+    <section className="rounded-lg border border-slate-200 bg-slate-50/60 p-3">
+      <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+          All cases &middot; supporting detail
         </h2>
         <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-          reference · click a row to inspect
+          click a row to inspect
         </span>
       </div>
+      <p className="mb-2 text-[11px] italic text-slate-500">
+        Use this table to switch cases and inspect their replay output.
+      </p>
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-xs">
           <thead>
             <tr className="text-left text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
               <th className="py-1.5 pr-3">Case</th>
@@ -130,16 +133,16 @@ export default function ReplayComparisonTable({
                 isSelected && isRegression
                   ? "bg-rose-50 ring-1 ring-rose-300"
                   : isSelected
-                    ? "bg-sky-50 ring-1 ring-sky-200"
+                    ? "bg-sky-50/70 ring-1 ring-sky-200"
                     : isRegression
-                      ? "bg-rose-50 hover:bg-rose-100"
-                      : "hover:bg-slate-50/50";
+                      ? "bg-rose-50/60 hover:bg-rose-50"
+                      : "hover:bg-white";
               const firstCellAccent = isRegression
-                ? "border-l-4 border-l-rose-400 pl-2"
+                ? "border-l-4 border-l-rose-300 pl-2"
                 : "";
               const titleClass = isRegression
-                ? "text-slate-900"
-                : "text-slate-700";
+                ? "text-slate-800"
+                : "text-slate-600";
               return (
                 <tr
                   key={c.caseId}
@@ -150,7 +153,7 @@ export default function ReplayComparisonTable({
                       type="button"
                       aria-pressed={isSelected}
                       onClick={() => onSelectRow(idx)}
-                      className={`text-left text-sm font-medium hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 ${titleClass}`}
+                      className={`text-left text-xs font-medium hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 ${titleClass}`}
                     >
                       {c.caseTitle}
                     </button>

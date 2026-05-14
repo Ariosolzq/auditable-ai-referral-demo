@@ -1,7 +1,5 @@
 import type { ReactNode } from "react";
 import ReplayClient from "@/components/replay/ReplayClient";
-import ReplayPromotionGate from "@/components/replay/ReplayPromotionGate";
-import ReplaySummaryCards from "@/components/replay/ReplaySummaryCards";
 import VersionChangeNotes from "@/components/replay/VersionChangeNotes";
 import { replayRuns } from "@/data/replayRuns";
 
@@ -30,11 +28,11 @@ export default function ReplayPage() {
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <div>
             <h1 className="text-xl font-semibold text-slate-900">
-              Replay &amp; Evaluation
+              Replay Gate
             </h1>
             <p className="mt-0.5 text-sm text-slate-600">
-              Promotion-gate view. Inspect baseline vs candidate before policy
-              or prompt promotion.
+              Check baseline vs candidate workflow behavior before promoting a
+              policy or prompt version.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
@@ -60,14 +58,7 @@ export default function ReplayPage() {
         </div>
       </header>
 
-      <ReplayPromotionGate
-        comparisons={run.comparisons}
-        primaryCaseId="case-c"
-      />
-
-      <ReplaySummaryCards comparisons={run.comparisons} />
-
-      <ReplayClient comparisons={run.comparisons} />
+      <ReplayClient comparisons={run.comparisons} primaryCaseId="case-c" />
 
       <VersionChangeNotes notes={run.versionChangeNotes} />
     </div>
