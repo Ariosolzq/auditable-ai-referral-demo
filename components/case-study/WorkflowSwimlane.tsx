@@ -43,13 +43,6 @@ const lanes: Lane[] = [
   { key: "human", name: "Human", bandClass: "bg-sky-50/60" },
 ];
 
-const principles: string[] = [
-  "Rule-first",
-  "Evidence-bound",
-  "Human-governed",
-  "Replay before promotion",
-];
-
 function laneRowIndex(lane: LaneKey): number {
   // Row 1 is the header. Rows 2, 3, 4 are the lanes.
   return lanes.findIndex((l) => l.key === lane) + 2;
@@ -104,10 +97,10 @@ export default function WorkflowSwimlane() {
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
         <h2 className="text-lg font-semibold text-slate-900">
-          System approach
+          Governed workflow map
         </h2>
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-          one diagram &middot; eight steps &middot; two boundaries
+          eight steps &middot; two decision boundaries
         </p>
       </div>
 
@@ -267,6 +260,11 @@ export default function WorkflowSwimlane() {
                   <p className="mt-0.5 text-xs text-slate-500">
                     {step.caption}
                   </p>
+                  {step.num === 5 && (
+                    <p className="mt-1 text-[10px] italic text-slate-500">
+                      advisory only &middot; cannot set finalDecision
+                    </p>
+                  )}
                 </div>
               </li>
             </Fragment>
@@ -274,19 +272,14 @@ export default function WorkflowSwimlane() {
         })}
       </ol>
 
-      {/* Reliability principles + boundary legend */}
+      {/* LLM advisory boundary annotation + boundary legend */}
       <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
         <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-          Reliability
+          LLM lane
         </span>
-        {principles.map((p) => (
-          <span
-            key={p}
-            className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs font-medium text-slate-700"
-          >
-            {p}
-          </span>
-        ))}
+        <span className="inline-flex items-center rounded border border-slate-300 bg-white px-2 py-0.5 text-[11px] font-medium text-slate-600">
+          advisory only &middot; cannot set finalDecision
+        </span>
         <span className="ml-auto hidden items-center gap-3 text-[11px] text-slate-500 sm:inline-flex">
           <span className="inline-flex items-center gap-1.5">
             <span

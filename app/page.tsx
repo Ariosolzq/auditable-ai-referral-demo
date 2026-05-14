@@ -1,6 +1,7 @@
 import BoundaryStrip from "@/components/case-study/BoundaryStrip";
 import CaseRail from "@/components/case-study/CaseRail";
 import HeroSection from "@/components/case-study/HeroSection";
+import LandingCommunicationGuide from "@/components/case-study/LandingCommunicationGuide";
 import ProblemSection from "@/components/case-study/ProblemSection";
 import WorkflowSwimlane from "@/components/case-study/WorkflowSwimlane";
 
@@ -12,6 +13,7 @@ export default function HomePage() {
         <ProblemSection />
       </div>
       <BoundaryStrip />
+      <LandingCommunicationGuide />
       <WorkflowSwimlane />
       <CaseRail />
     </div>
