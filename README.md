@@ -84,9 +84,10 @@ components/
   replay/
     ReplayClient.tsx          client island; owns selected row
     ReplayComparisonTable.tsx client; row buttons
+    ReplayPromotionGate.tsx   selected-case explanation + regression flag
     VersionChangeNotes.tsx
     ReplaySummaryCards.tsx
-    ReplayDiffPanel.tsx
+    ReplayDiffPanel.tsx       collapsed raw baseline/candidate JSON
   layout/Nav.tsx              top navigation
 
 lib/
@@ -107,9 +108,6 @@ scripts/
 
 tests/
   caseReducer.test.ts         9 reducer unit tests
-
-scratch/
-  manual-submit.ts            local script for reducer sanity output
 ```
 
 The case workspace mounts a single client component (`CaseWorkspaceClient`) that owns all interactive state via `useReducer(caseReducer, initialCase, buildInitialState)`. The page itself stays server-rendered with `notFound()` plus `generateStaticParams`.
@@ -131,7 +129,7 @@ Audit events appended at submit time carry a `causationEventId` that points stri
 - **Override submission.** Reviewer chooses `override`, a final decision, and a required override reason. The reducer appends `HumanReviewSubmitted`, `HumanOverrideSubmitted`, then `FinalDecisionRecorded`. `overrideFlag` is set to `true`.
 - **No-op guards.** Submitting on a `not_required` case is a no-op. Submitting an already-submitted review is a no-op. Submitting an override with a blank reason is a no-op (the form's Submit button is also disabled in that state).
 - **Reset Case.** Restores the initial case clone and resets selections. The case can be submitted again after reset.
-- **Replay row selection.** The comparison table row buttons update a `useState` in `ReplayClient`. The diff panel below shows the selected case's baseline JSON, candidate JSON, list of changed fields, and an interpretation paragraph.
+- **Replay row selection.** `ReplayClient` owns a `useState` for the selected row. Clicking Case A, B, or C in the comparison table updates the promotion-gate explanation above the table (rule, routing, review-requirement, risk-flag deltas and the potential-regression flag for the selected case). The raw baseline/candidate JSON sits below in a collapsed `<details>` panel as supporting detail.
 
 ## Mock Data and Safety
 
@@ -231,7 +229,7 @@ Spot-check the deployed site or local dev server:
 - [ ] `/cases/case-a` renders status `accepted`, stage `completed`, and the human review panel shows the "not required" banner with no form.
 - [ ] `/cases/case-b` renders status `needs_review`, an evidence-bound LLM advisory, and a review form. Confirm or override submission updates the audit timeline and the header badges.
 - [ ] `/cases/case-c` renders rule decision `REJECT`, routing `human_review_required`, and the `POLICY_REQUIRES_HUMAN_CONFIRMATION_ON_REJECT` routing reason. Overriding to `ACCEPT` appends three audit events and updates the final-decision badge.
-- [ ] `/replay` renders the version change notes, summary cards, comparison table, and diff panel. Selecting the Case C row shows the regression interpretation text.
+- [ ] `/replay` renders the promotion gate, summary cards, comparison table, version change notes, and the collapsed raw-output panel. Case C is selected by default and its promotion gate shows the regression interpretation; selecting Case A or B updates the gate and the raw output to that case.
 
 ## Interview Framing
 
