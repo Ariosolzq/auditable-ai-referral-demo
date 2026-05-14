@@ -4,7 +4,7 @@ A frontend-only interactive demo of a governed referral intake workflow. The dem
 
 ## Live Demo
 
-[Open the demo](https://auditable-ai-referral-demo.vercel.app/)
+[Open the deployed demo](https://auditable-ai-referral-demo.vercel.app/)
 
 > **Mock demo boundaries**
 >
@@ -19,6 +19,23 @@ A frontend-only interactive demo of a governed referral intake workflow. The dem
 Built with Next.js 15 App Router, TypeScript (strict), Tailwind CSS, and Vitest. Interactive state for the case workspace is managed by a local `useReducer`. All "data" is static TypeScript mock data; there is no backend, database, or external API call at runtime.
 
 The demo demonstrates a workflow where the LLM is **advisory only**: the deterministic rule engine produces the preliminary decision, the workflow policy chooses routing, the LLM may attach evidence-bound observations, and a human reviewer's confirm or override is the final authority. Every important event lands in an audit timeline with explicit causation. A separate replay page compares baseline vs candidate policy/prompt versions against the same mock cases.
+
+## What is a referral here?
+
+In this demo, a referral is an incoming healthcare service request that must be checked against eligibility, payer, authorization, and document evidence before it moves forward.
+
+The mock cases represent simplified intake scenarios such as low-risk auto-accept, missing documentation requiring review, and rule rejection requiring human confirmation. No real patient data, PHI, payer data, or production system data is used.
+
+## AI Governance Lens
+
+This project is designed around governance boundaries rather than autonomous AI decisions.
+
+| Principle | Meaning in this demo |
+| --- | --- |
+| Rules decide | Deterministic rules produce the preliminary decision and routing reason. |
+| LLM advises | The LLM output is advisory, evidence-bound, and cannot write `finalDecision`. |
+| Humans govern | Reviewers confirm or override when policy requires human review. |
+| Audit + replay verify | Events preserve causation, and replay compares policy/prompt changes before promotion. |
 
 ## What This Demo Shows
 
@@ -48,6 +65,18 @@ The demo demonstrates a workflow where the LLM is **advisory only**: the determi
 2. **Evidence-bound AI outputs.** Every LLM summary, missing-field analysis, and risk flag carries `supportingEvidenceIds` referencing the case's evidence package. Free-form summaries without evidence references are disallowed at the type level.
 3. **Human review as governance boundary.** Reviewers confirm or override the rule decision. The human action is the final authority and is recorded in the audit trail with explicit reviewer action and override reason.
 4. **Replay before policy/prompt promotion.** Policy and prompt version changes are compared against historical cases before promotion, surfacing rule, routing, review-requirement, and risk-flag deltas plus a potential regression flag.
+
+## Governance Role Model
+
+| Role | Responsibility |
+| --- | --- |
+| Intake user | Submits or monitors incoming referral cases. |
+| Reviewer | Confirms or overrides rule decisions when policy requires review. |
+| Supervisor | Reviews high-risk overrides and promotion-sensitive changes. |
+| Policy admin | Owns policy, ruleset, and prompt version changes. |
+| Auditor | Reads audit trails, evidence references, and replay outputs without changing decisions. |
+
+Only the **reviewer** role is interactively modeled in the current frontend demo (via the confirm/override form on the case workspace and the `SUBMIT_REVIEW` reducer action). The other roles describe the surrounding governance model and are not exposed as separate UI surfaces in this repository.
 
 ## Routes
 
@@ -125,6 +154,42 @@ The reducer handles five actions:
 
 Audit events appended at submit time carry a `causationEventId` that points strictly backward to an earlier event in the same case.
 
+## Conceptual Production Architecture
+
+> This diagram describes a production-target architecture. This repository implements only a frontend-only mock UI with static TypeScript fixtures. There is no real backend, database, PHI processing, or LLM API call.
+
+```
+Reviewer UI / Frontend
+        |
+        v
+API Layer
+        |
+        v
+Workflow Orchestrator
+        |
+        v
+Evidence Builder
+        |
+        v
+Deterministic Rule Engine
+        |
+        +-------> LLM Advisory Service
+        |
+        v
+Human Review Service
+        |
+        v
+Audit / Event Store
+        |
+        v
+Replay Runner
+        |
+        v
+Database / Artifact Store / Policy-Prompt Bundles
+```
+
+In a production system, the workflow orchestrator would manage state transitions, the evidence builder would assemble normalized evidence packages, the deterministic rule engine would produce preliminary decisions, and the LLM advisory service would generate evidence-bound review support. Only the human review service would write final decisions when policy requires review. The replay runner would compare baseline and candidate policy/prompt behavior without writing production state.
+
 ## Implemented Interactions
 
 - **Evidence-binding clicks.** Rule reason codes, missing fields, conflict flags, routing reason codes, LLM evidence summaries, LLM missing-field analyses, and LLM risk flags each carry `supportingEvidenceIds`. Clicking any chip dispatches `SELECT_EVIDENCE` with the item's array; the evidence panel highlights matching records and shows a `Clear selection (N)` control.
@@ -163,6 +228,17 @@ A PHI/PII pattern scan rejects email-, phone-, SSN-, and slash-date-shaped strin
 
 The validator also runs three minimal checks on `data/replayRuns.ts`: `reasonCodes` and `riskFlags` are string arrays, `requiresHumanReview` is consistent with `routingDecision`, and the literal `request_more_info` does not appear.
 
+## Failure Modes This Design Is Meant to Catch
+
+| Failure mode | How the design handles it |
+| --- | --- |
+| Unsupported LLM claim | Advisory outputs must reference supporting evidence IDs. |
+| Missing evidence ID | Evidence-bound outputs are validated against the evidence package. |
+| Policy / rule version mismatch | Policy, prompt, ruleset, input hash, and output hash are surfaced in case and replay views. |
+| Human-review gate regression | Replay flags changes where a case no longer routes to required human review. |
+| Schema validation failure | Structured mock data and audit events are validated before build/deployment. |
+| Implicit final decision | LLM output cannot write `finalDecision`; final decisions are produced through human review or deterministic policy paths. |
+
 ## Replay and Evaluation
 
 `data/replayRuns.ts` contains one replay run comparing `policy_v1 + prompt_v1` (baseline) against `policy_v2 + prompt_v2` (candidate) over the three mock cases. Each comparison's diff is grounded in a specific spec policy/prompt version note (the inline comment cites the source):
@@ -172,6 +248,18 @@ The validator also runs three minimal checks on `data/replayRuns.ts`: `reasonCod
 - **Case C** — candidate routing changes from `human_review_required` to `needs_more_evidence`. Policy v2: "Eligibility conflict or stale evidence cases route to needs_more_evidence before human review." `requiresHumanReview` flips to `false`. This comparison is flagged as a potential regression because the immediate routing changes before human attention.
 
 The replay page does not execute rules or call an LLM. It reads the pre-authored comparison data and renders the diff.
+
+## Replay Decision Vocabulary
+
+| Term | Meaning |
+| --- | --- |
+| Potential regression | A candidate policy/prompt change weakens review governance, changes a historically supervised path, or alters a high-risk routing decision without an equally protective alternative. |
+| Acceptable behavior change | A candidate change that does not weaken governance, such as advisory text changes while rule/routing/review requirements remain stable. |
+| Requires approval | Any potential regression, human-review gate change, routing-policy change, or policy/prompt bundle change that must be reviewed before promotion. |
+
+- Replay is read-only.
+- Replay does not update production status.
+- Replay does not write final decisions.
 
 ## Local Development
 
@@ -247,3 +335,9 @@ The demo is designed to be discussed as a small but coherent system-design exerc
 - **Replay and evaluation before policy or prompt promotion.** The replay page exists because policy and prompt version changes need to be reviewed *before* they hit production. The diff surfaces rule, routing, review-requirement, and risk-flag deltas plus a potential regression flag — explicitly not a benchmark score. Comparison diffs are grounded in specific spec version-change notes.
 
 Each implementation phase is logged in `LEARNINGS.md` with scope, decisions, stuck points, and what would be done differently.
+
+## Contact
+
+- Email: [linziqi1229@outlook.com](mailto:linziqi1229@outlook.com)
+- GitHub: [Ariosolzq](https://github.com/Ariosolzq)
+- LinkedIn: [ziqi-lin-lzq](https://www.linkedin.com/in/ziqi-lin-lzq)
