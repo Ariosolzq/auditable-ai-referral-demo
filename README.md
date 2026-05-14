@@ -2,6 +2,10 @@
 
 A frontend-only interactive demo of a governed referral intake workflow. The demo simulates how deterministic rules, evidence-bound LLM advisory output, human review, audit trails, and replay comparison can work together when an AI-assisted decision needs to be auditable, replayable, and human-governed.
 
+## Live Demo
+
+[Open the demo](https://auditable-ai-referral-demo.vercel.app/)
+
 > **Mock demo boundaries**
 >
 > - This is a frontend-only mock demo.
