@@ -1,6 +1,7 @@
 import BoundaryStrip from "@/components/case-study/BoundaryStrip";
 import CaseRail from "@/components/case-study/CaseRail";
 import ContactFooter from "@/components/case-study/ContactFooter";
+import GovernanceLens from "@/components/case-study/GovernanceLens";
 import HeroSection from "@/components/case-study/HeroSection";
 import LandingCommunicationGuide from "@/components/case-study/LandingCommunicationGuide";
 import ProblemSection from "@/components/case-study/ProblemSection";
@@ -12,6 +13,7 @@ export default function HomePage() {
       <div className="space-y-2">
         <HeroSection />
         <ProblemSection />
+        <GovernanceLens />
         <BoundaryStrip />
       </div>
       <LandingCommunicationGuide />

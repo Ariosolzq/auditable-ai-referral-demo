@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Link from "next/link";
 
 type FlowStep = {
@@ -106,24 +107,36 @@ function ControlPathRow() {
           rule-first &middot; policy-routed
         </span>
       </div>
-      <ol className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-        {controlPath.map((step, index) => (
-          <li key={step.label} className="flex items-center gap-2">
-            <span
-              className={`inline-flex min-h-9 items-center rounded-md border-2 px-3 py-1.5 text-xs font-semibold leading-tight shadow-sm ${step.tone}`}
+      <ol className="flex flex-col gap-2">
+        {[controlPath.slice(0, 2), controlPath.slice(2, 4)].map(
+          (row, rowIdx) => (
+            <li
+              key={`row-${rowIdx}`}
+              className="flex flex-wrap items-center gap-2"
             >
-              {step.label}
-            </span>
-            {index < controlPath.length - 1 && (
-              <span
-                aria-hidden="true"
-                className="hidden text-sm font-semibold text-slate-500 sm:inline"
-              >
-                &rarr;
-              </span>
-            )}
-          </li>
-        ))}
+              {row.map((step, idx) => {
+                const isLast = idx === row.length - 1;
+                return (
+                  <Fragment key={step.label}>
+                    <span
+                      className={`inline-flex min-h-9 items-center rounded-md border-2 px-3 py-1.5 text-xs font-semibold leading-tight shadow-sm ${step.tone}`}
+                    >
+                      {step.label}
+                    </span>
+                    {!isLast && (
+                      <span
+                        aria-hidden="true"
+                        className="hidden text-sm font-semibold text-slate-500 sm:inline"
+                      >
+                        &rarr;
+                      </span>
+                    )}
+                  </Fragment>
+                );
+              })}
+            </li>
+          ),
+        )}
       </ol>
     </div>
   );
