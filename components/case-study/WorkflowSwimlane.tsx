@@ -95,7 +95,7 @@ function LaneBadge({ lane }: { lane: LaneKey }) {
 export default function WorkflowSwimlane() {
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-      <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
+      <div className="mb-2 flex flex-wrap items-baseline justify-between gap-3">
         <h2 className="text-lg font-semibold text-slate-900">
           Governed workflow map
         </h2>
@@ -103,6 +103,10 @@ export default function WorkflowSwimlane() {
           eight steps &middot; two decision boundaries
         </p>
       </div>
+      <p className="mb-4 text-xs leading-snug text-slate-600">
+        Read left to right: evidence &rarr; rules &rarr; advisory LLM &rarr;
+        human-governed final decision &rarr; audit/replay.
+      </p>
 
       {/* Desktop swimlane (md+) */}
       <div

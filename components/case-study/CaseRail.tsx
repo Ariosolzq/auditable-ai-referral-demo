@@ -22,6 +22,7 @@ type CaseEntry = {
   title: string;
   subtitle: string;
   description: string;
+  proves: string;
   triple: Triple;
 };
 
@@ -30,7 +31,9 @@ const caseC: CaseEntry = {
   title: "Case C",
   subtitle: "Rule REJECT → human override",
   description:
-    "Rule rejects on lapsed eligibility. Policy requires human confirmation before finalizing. Reviewer can override to ACCEPT — override and final-decision events would then be appended to the audit trail.",
+    "Rule rejects on lapsed eligibility; policy holds the case for human confirmation; reviewer override to ACCEPT is audited.",
+  proves:
+    "rule-first rejection, human override, auditable final decision.",
   triple: {
     rule: { label: "REJECT", tone: "reject" },
     llm: { label: "advisory", tone: "advisory" },
@@ -45,6 +48,8 @@ const otherCases: CaseEntry[] = [
     subtitle: "Low-risk auto-accept",
     description:
       "Rule produces ACCEPT with auto_accept routing. LLM advisory is skipped. No human review required.",
+    proves:
+      "deterministic auto-finalization; LLM skipped when not needed.",
     triple: {
       rule: { label: "ACCEPT", tone: "accept" },
       llm: { label: "skipped", tone: "skipped" },
@@ -57,6 +62,8 @@ const otherCases: CaseEntry[] = [
     subtitle: "Missing physician order → human review",
     description:
       "Missing physician order triggers NEEDS_REVIEW. Evidence-bound LLM advisory accompanies the case. Reviewer confirms or overrides.",
+    proves:
+      "missing evidence routes to human review with advisory support.",
     triple: {
       rule: { label: "NEEDS_REVIEW", tone: "review" },
       llm: { label: "advisory", tone: "advisory" },
@@ -64,6 +71,17 @@ const otherCases: CaseEntry[] = [
     },
   },
 ];
+
+function ProvesLine({ proves }: { proves: string }) {
+  return (
+    <p className="mt-2 flex flex-wrap items-baseline gap-1.5 text-xs leading-snug text-slate-700">
+      <span className="inline-flex items-center rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-600">
+        Proves
+      </span>
+      <span>{proves}</span>
+    </p>
+  );
+}
 
 function decisionToneClass(tone: DecisionTone): string {
   switch (tone) {
@@ -160,7 +178,10 @@ export default function CaseRail() {
                 &middot; {caseC.subtitle}
               </span>
             </h3>
-            <p className="mt-1.5 text-sm text-slate-700">{caseC.description}</p>
+            <p className="mt-1.5 text-sm leading-snug text-slate-700">
+              {caseC.description}
+            </p>
+            <ProvesLine proves={caseC.proves} />
           </div>
           <DecisionTriple triple={caseC.triple} />
         </div>
@@ -186,6 +207,7 @@ export default function CaseRail() {
                 </span>
               </h3>
               <p className="mt-1 text-xs text-slate-600">{c.description}</p>
+              <ProvesLine proves={c.proves} />
               <div className="mt-2.5">
                 <DecisionTriple triple={c.triple} dense />
               </div>

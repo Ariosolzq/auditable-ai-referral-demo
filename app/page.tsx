@@ -7,12 +7,12 @@ import WorkflowSwimlane from "@/components/case-study/WorkflowSwimlane";
 
 export default function HomePage() {
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div className="space-y-2">
         <HeroSection />
         <ProblemSection />
+        <BoundaryStrip />
       </div>
-      <BoundaryStrip />
       <LandingCommunicationGuide />
       <WorkflowSwimlane />
       <CaseRail />

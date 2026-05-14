@@ -4,7 +4,11 @@ export default function HeroSection() {
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
       <div className="max-w-3xl space-y-4">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+        <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+          <span
+            aria-hidden="true"
+            className="inline-block h-1.5 w-8 rounded-full bg-amber-300"
+          />
           Case study &middot; frontend-only demo
         </p>
         <h1 className="text-3xl font-semibold leading-tight tracking-tight text-slate-900 sm:text-[40px] sm:leading-[1.05]">
