@@ -31,9 +31,8 @@ const caseC: CaseEntry = {
   title: "Case C",
   subtitle: "Rule REJECT → human override",
   description:
-    "Rule rejects on lapsed eligibility; policy holds the case for human confirmation; reviewer override to ACCEPT is audited.",
-  proves:
-    "rule-first rejection, human override, auditable final decision.",
+    "Policy holds a rule REJECT for human confirmation; override to ACCEPT is audited.",
+  proves: "Rule-first rejection · human override · audit trail",
   triple: {
     rule: { label: "REJECT", tone: "reject" },
     llm: { label: "advisory", tone: "advisory" },
@@ -47,9 +46,8 @@ const otherCases: CaseEntry[] = [
     title: "Case A",
     subtitle: "Low-risk auto-accept",
     description:
-      "Rule produces ACCEPT with auto_accept routing. LLM advisory is skipped. No human review required.",
-    proves:
-      "deterministic auto-finalization; LLM skipped when not needed.",
+      "Low-risk evidence passes policy; LLM and review are skipped.",
+    proves: "Auto-finalization · skipped LLM",
     triple: {
       rule: { label: "ACCEPT", tone: "accept" },
       llm: { label: "skipped", tone: "skipped" },
@@ -61,9 +59,8 @@ const otherCases: CaseEntry[] = [
     title: "Case B",
     subtitle: "Missing physician order → human review",
     description:
-      "Missing physician order triggers NEEDS_REVIEW. Evidence-bound LLM advisory accompanies the case. Reviewer confirms or overrides.",
-    proves:
-      "missing evidence routes to human review with advisory support.",
+      "Missing documentation routes the case to review with advisory support.",
+    proves: "Missing evidence · human review · advisory support",
     triple: {
       rule: { label: "NEEDS_REVIEW", tone: "review" },
       llm: { label: "advisory", tone: "advisory" },

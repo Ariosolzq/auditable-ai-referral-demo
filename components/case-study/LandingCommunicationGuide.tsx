@@ -1,4 +1,3 @@
-import { Fragment } from "react";
 import Link from "next/link";
 
 type FlowStep = {
@@ -23,19 +22,19 @@ const chatbotFlow: FlowStep[] = [
 
 const controlPath: FlowStep[] = [
   {
-    label: "Evidence package",
+    label: "Evidence",
     tone: "border-slate-300 bg-white text-slate-900",
   },
   {
-    label: "Deterministic rules",
+    label: "Rules",
     tone: "border-amber-400 bg-amber-50 text-amber-900",
   },
   {
-    label: "Policy routing",
+    label: "Routing",
     tone: "border-amber-400 bg-amber-50 text-amber-900",
   },
   {
-    label: "Final decision",
+    label: "Final",
     tone: "border-slate-300 bg-white text-slate-900",
   },
 ];
@@ -107,36 +106,27 @@ function ControlPathRow() {
           rule-first &middot; policy-routed
         </span>
       </div>
-      <ol className="flex flex-col gap-2">
-        {[controlPath.slice(0, 2), controlPath.slice(2, 4)].map(
-          (row, rowIdx) => (
-            <li
-              key={`row-${rowIdx}`}
-              className="flex flex-wrap items-center gap-2"
-            >
-              {row.map((step, idx) => {
-                const isLast = idx === row.length - 1;
-                return (
-                  <Fragment key={step.label}>
-                    <span
-                      className={`inline-flex min-h-9 items-center rounded-md border-2 px-3 py-1.5 text-xs font-semibold leading-tight shadow-sm ${step.tone}`}
-                    >
-                      {step.label}
-                    </span>
-                    {!isLast && (
-                      <span
-                        aria-hidden="true"
-                        className="hidden text-sm font-semibold text-slate-500 sm:inline"
-                      >
-                        &rarr;
-                      </span>
-                    )}
-                  </Fragment>
-                );
-              })}
+      <ol className="flex flex-wrap items-center gap-x-1.5 gap-y-1.5">
+        {controlPath.map((step, idx) => {
+          const isLast = idx === controlPath.length - 1;
+          return (
+            <li key={step.label} className="flex items-center gap-1.5">
+              <span
+                className={`inline-flex min-h-8 items-center rounded-md border px-2.5 py-1 text-xs font-semibold leading-tight ${step.tone}`}
+              >
+                {step.label}
+              </span>
+              {!isLast && (
+                <span
+                  aria-hidden="true"
+                  className="text-sm font-semibold text-slate-400"
+                >
+                  &rarr;
+                </span>
+              )}
             </li>
-          ),
-        )}
+          );
+        })}
       </ol>
     </div>
   );
@@ -269,7 +259,7 @@ export default function LandingCommunicationGuide() {
         </div>
 
         <div className="grid gap-3 lg:grid-cols-2">
-          <div className="rounded-lg border border-slate-200 border-l-4 border-l-slate-300 bg-white p-4 shadow-sm">
+          <div className="rounded-lg border border-slate-200 border-l-4 border-l-slate-300 bg-white p-4">
             <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-600">
               Typical chatbot demo
             </h3>
@@ -281,7 +271,7 @@ export default function LandingCommunicationGuide() {
             </p>
           </div>
 
-          <div className="rounded-lg border border-slate-200 border-l-4 border-l-amber-300 bg-white p-4 shadow-sm">
+          <div className="rounded-lg border border-slate-200 border-l-4 border-l-amber-300 bg-white p-4">
             <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-600">
               This workflow demo
             </h3>
@@ -290,8 +280,7 @@ export default function LandingCommunicationGuide() {
               <GovernanceLayerRow />
             </div>
             <p className="mt-3 text-sm leading-snug text-slate-700">
-              Rules and humans control decisions; LLM output is advisory and
-              evidence-bound.
+              LLM supports review; it does not control outcomes.
             </p>
           </div>
         </div>

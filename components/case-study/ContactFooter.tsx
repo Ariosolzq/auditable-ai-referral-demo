@@ -4,10 +4,10 @@ export default function ContactFooter() {
   return (
     <footer
       aria-label="Contact"
-      className="rounded-md border border-slate-200 bg-slate-50/60 px-4 py-2.5 text-xs text-slate-600"
+      className="border-t border-slate-200 px-1 py-4 text-xs text-slate-600"
     >
       <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
-        <span className="font-semibold uppercase tracking-[0.16em] text-slate-700">
+        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-700">
           Contact
         </span>
         <span aria-hidden="true" className="text-slate-300">
@@ -39,9 +39,9 @@ export default function ContactFooter() {
           LinkedIn ziqi-lin-lzq
         </a>
       </p>
-      <p className="mt-1 text-[11px] italic text-slate-500">
-        Frontend-only mock demo. No real PHI, no real LLM API, no production
-        backend.
+      <p className="mt-1 font-mono text-[11px] text-slate-500">
+        Frontend-only mock demo &middot; no real PHI &middot; no real LLM API
+        &middot; no production backend &middot; no real business decisions.
       </p>
     </footer>
   );

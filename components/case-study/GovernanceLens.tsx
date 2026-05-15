@@ -11,25 +11,25 @@ const tiles: Tile[] = [
   {
     index: 1,
     title: "Rules decide",
-    body: "Deterministic policy produces the preliminary decision.",
+    body: "Deterministic policy path.",
     accent: "amber",
   },
   {
     index: 2,
     title: "LLM advises",
-    body: "Advisory output is evidence-bound and cannot write finalDecision.",
+    body: "Evidence-bound; no finalDecision write.",
     accent: "slate",
   },
   {
     index: 3,
     title: "Humans govern",
-    body: "Reviewer confirm or override controls the final outcome when policy requires review.",
+    body: "Reviewer confirms or overrides.",
     accent: "sky",
   },
   {
     index: 4,
     title: "Audit + replay verify",
-    body: "Events preserve causation; replay checks policy/prompt changes before promotion.",
+    body: "Causation and promotion checks.",
     accent: "slate",
   },
 ];
@@ -48,23 +48,23 @@ function markerTone(accent: Accent): string {
 
 export default function GovernanceLens() {
   return (
-    <section
+    <aside
       aria-labelledby="governance-lens-heading"
-      className="rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm"
+      className="rounded-lg border border-slate-200 bg-slate-50/40 p-3.5"
     >
-      <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
+      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
         <h2
           id="governance-lens-heading"
-          className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-700"
+          className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-700"
         >
           AI governance lens
         </h2>
-        <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-slate-400">
           rule-first &middot; evidence-bound &middot; human-governed &middot;
           replayable
         </span>
       </div>
-      <ol className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+      <ol className="space-y-2">
         {tiles.map((tile) => (
           <li
             key={tile.index}
@@ -75,13 +75,13 @@ export default function GovernanceLens() {
             <div className="flex items-center gap-1.5">
               <span
                 aria-hidden="true"
-                className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-semibold ${markerTone(
+                className={`inline-flex h-5 w-5 items-center justify-center rounded-full font-mono text-[11px] font-semibold ${markerTone(
                   tile.accent,
                 )}`}
               >
                 {tile.index}
               </span>
-              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-700">
+              <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-700">
                 {tile.title}
               </span>
             </div>
@@ -91,6 +91,6 @@ export default function GovernanceLens() {
           </li>
         ))}
       </ol>
-    </section>
+    </aside>
   );
 }

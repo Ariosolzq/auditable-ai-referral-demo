@@ -104,8 +104,8 @@ export default function WorkflowSwimlane() {
         </p>
       </div>
       <p className="mb-4 text-xs leading-snug text-slate-600">
-        Read left to right: evidence &rarr; rules &rarr; advisory LLM &rarr;
-        human-governed final decision &rarr; audit/replay.
+        Evidence &rarr; rules &rarr; advisory &rarr; human-governed decision
+        &rarr; audit/replay.
       </p>
 
       {/* Desktop swimlane (md+) */}
