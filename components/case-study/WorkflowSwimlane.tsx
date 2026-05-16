@@ -58,7 +58,7 @@ function nodeStyles(step: Step): string {
 function NodeBox({ step }: { step: Step }) {
   return (
     <div
-      className={`relative mx-auto flex w-full max-w-[150px] flex-col items-center gap-0.5 rounded-md border bg-white px-2 py-1.5 text-center shadow-sm ${nodeStyles(
+      className={`relative mx-auto flex w-full max-w-[140px] flex-col items-center gap-0 rounded-md border bg-white px-2 py-1 text-center ${nodeStyles(
         step,
       )}`}
     >
@@ -94,8 +94,8 @@ function LaneBadge({ lane }: { lane: LaneKey }) {
 
 export default function WorkflowSwimlane() {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-      <div className="mb-2 flex flex-wrap items-baseline justify-between gap-3">
+    <section className="rounded-lg border border-slate-200 bg-white p-4 sm:p-5">
+      <div className="mb-1.5 flex flex-wrap items-baseline justify-between gap-3">
         <h2 className="text-lg font-semibold text-slate-900">
           Governed workflow map
         </h2>
@@ -103,7 +103,7 @@ export default function WorkflowSwimlane() {
           eight steps &middot; two decision boundaries
         </p>
       </div>
-      <p className="mb-4 text-xs leading-snug text-slate-600">
+      <p className="mb-3 text-xs leading-snug text-slate-600">
         Evidence &rarr; rules &rarr; advisory &rarr; human-governed decision
         &rarr; audit/replay.
       </p>
@@ -117,13 +117,13 @@ export default function WorkflowSwimlane() {
         <div
           className="relative grid"
           style={{
-            gridTemplateColumns: "minmax(76px, auto) repeat(8, minmax(0, 1fr))",
-            gridTemplateRows: "auto repeat(3, 92px)",
+            gridTemplateColumns: "minmax(72px, auto) repeat(8, minmax(0, 1fr))",
+            gridTemplateRows: "auto repeat(3, 68px)",
           }}
         >
           {/* HEADER row, col 1: stage label */}
           <div
-            className="border-b border-slate-200 bg-slate-50 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500"
+            className="border-b border-slate-200 bg-slate-50 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500"
             style={{ gridColumn: "1 / 2", gridRow: "1 / 2" }}
           >
             Stage
@@ -133,7 +133,7 @@ export default function WorkflowSwimlane() {
           {steps.map((step, i) => (
             <div
               key={`h-${step.num}`}
-              className="relative border-b border-slate-200 bg-slate-50 px-2 py-2 text-center"
+              className="relative border-b border-slate-200 bg-slate-50 px-2 py-1.5 text-center"
               style={{ gridColumn: `${i + 2} / ${i + 3}`, gridRow: "1 / 2" }}
             >
               <span className="block text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-400">
@@ -183,7 +183,7 @@ export default function WorkflowSwimlane() {
           {steps.map((step, i) => (
             <div
               key={`n-${step.num}`}
-              className="relative z-10 flex items-center justify-center px-2"
+              className="relative z-10 flex items-center justify-center px-1.5"
               style={{
                 gridColumn: `${i + 2} / ${i + 3}`,
                 gridRow: `${laneRowIndex(step.lane)} / ${
@@ -218,7 +218,7 @@ export default function WorkflowSwimlane() {
       </div>
 
       {/* MOBILE (below md): simple vertical stack with boundary markers between steps */}
-      <ol className="space-y-2 md:hidden" aria-label="Workflow steps">
+      <ol className="space-y-1.5 md:hidden" aria-label="Workflow steps">
         {steps.map((step) => {
           const boundaryMarker =
             step.num === 3
@@ -249,9 +249,9 @@ export default function WorkflowSwimlane() {
                 </li>
               )}
               <li
-                className={`flex items-start gap-3 rounded-md border bg-white px-3 py-2 shadow-sm ${stepBorder}`}
+                className={`flex items-start gap-3 rounded-md border bg-white px-3 py-1.5 ${stepBorder}`}
               >
-                <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-900 text-[11px] font-semibold text-white">
+                <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-900 text-[10px] font-semibold text-white">
                   {step.num}
                 </span>
                 <div className="min-w-0 flex-1">
@@ -277,7 +277,7 @@ export default function WorkflowSwimlane() {
       </ol>
 
       {/* LLM advisory boundary annotation + boundary legend */}
-      <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
+      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5">
         <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
           LLM lane
         </span>
