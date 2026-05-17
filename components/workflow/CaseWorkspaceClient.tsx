@@ -12,6 +12,7 @@ import WorkflowProgressRail from "@/components/workflow/WorkflowProgressRail";
 import { buildInitialState, caseReducer } from "@/lib/caseReducer";
 import type {
   FinalDecisionValue,
+  ReasonCode,
   ReferralCase,
   ReviewerAction,
 } from "@/types/referral";
@@ -20,83 +21,138 @@ type Props = {
   caseData: ReferralCase;
 };
 
-function statusTone(v: string): string {
-  if (v === "accepted" || v === "ACCEPT" || v === "auto_accept")
-    return "bg-emerald-50 text-emerald-800 border-emerald-200";
-  if (
-    v === "rejected" ||
-    v === "REJECT" ||
-    v === "auto_reject" ||
-    v === "failed"
-  )
-    return "bg-rose-50 text-rose-800 border-rose-200";
-  if (
-    v === "needs_review" ||
-    v === "waiting_for_human_review" ||
-    v === "in_progress" ||
-    v === "pending" ||
-    v === "NEEDS_REVIEW" ||
-    v === "UNCERTAIN" ||
-    v === "human_review_required" ||
-    v === "needs_more_evidence"
-  ) {
-    return "bg-amber-50 text-amber-800 border-amber-200";
+function caseEyebrow(caseData: ReferralCase): string {
+  const slug = caseData.id.replace(/^case-/, "");
+  return `Referral review workspace · Case ${slug.toUpperCase()}`;
+}
+
+function deriveHeadline(caseData: ReferralCase): {
+  lead: string;
+  trail: string;
+} {
+  const rule = caseData.ruleEvaluation.decision;
+  const routing = caseData.ruleEvaluation.routingDecision;
+  const final = caseData.finalDecision;
+
+  if (final) {
+    if (final.overrideFlag) {
+      return {
+        lead: "Reviewer overrode the rule;",
+        trail: `final ${final.decision.toLowerCase()}.`,
+      };
+    }
+    if (rule === "ACCEPT" && routing === "auto_accept") {
+      return { lead: "Rule accepted;", trail: "auto-finalized." };
+    }
+    if (rule === "REJECT" && routing === "auto_reject") {
+      return { lead: "Rule rejected;", trail: "auto-finalized." };
+    }
+    return {
+      lead: `Rule ${rule.toLowerCase()};`,
+      trail: `final ${final.decision.toLowerCase()}.`,
+    };
   }
-  return "bg-slate-100 text-slate-700 border-slate-200";
+
+  if (rule === "REJECT" && routing === "human_review_required") {
+    return { lead: "Rule rejected;", trail: "human review required." };
+  }
+  if (rule === "NEEDS_REVIEW" && routing === "human_review_required") {
+    return { lead: "Rule needs review;", trail: "human review required." };
+  }
+  if (rule === "UNCERTAIN" && routing === "human_review_required") {
+    return { lead: "Rule uncertain;", trail: "human review required." };
+  }
+  if (routing === "needs_more_evidence") {
+    return { lead: "Awaiting evidence;", trail: "case held." };
+  }
+  return { lead: caseData.title, trail: "" };
 }
 
-function riskTone(level: ReferralCase["riskLevel"]): string {
-  if (level === "high") return "bg-rose-50 text-rose-800 border-rose-200";
-  if (level === "medium") return "bg-amber-50 text-amber-800 border-amber-200";
-  return "bg-slate-100 text-slate-700 border-slate-200";
+function topReasonCode(codes: ReasonCode[]): string | null {
+  if (codes.length === 0) return null;
+  const order = ["blocking", "high", "medium", "low"] as const;
+  for (const sev of order) {
+    const found = codes.find((c) => c.severity === sev);
+    if (found) return found.code;
+  }
+  return codes[0]?.code ?? null;
 }
 
-function Chip({
-  label,
-  value,
-  tone,
-  mono = false,
-}: {
-  label: string;
-  value: ReactNode;
-  tone?: string;
-  mono?: boolean;
-}) {
-  const baseClass = tone ?? "border-slate-200 bg-white text-slate-700";
+function finalDecisionSub(caseData: ReferralCase): string {
+  if (!caseData.finalDecision) {
+    return "waiting on reviewer · only human review can finalize";
+  }
+  const fd = caseData.finalDecision;
+  if (fd.decidedBy === "system") {
+    return `${caseData.ruleEvaluation.ruleSetVersion} · auto-finalized`;
+  }
+  if (fd.overrideFlag) {
+    return "reviewer override · audit logged";
+  }
+  return "reviewer confirmed · audit logged";
+}
+
+function decisionValueTone(value: string): string {
+  if (value === "ACCEPT" || value === "auto_accept") return "text-emerald-700";
+  if (value === "REJECT" || value === "auto_reject") return "text-rose-700";
+  if (
+    value === "human_review_required" ||
+    value === "NEEDS_REVIEW" ||
+    value === "UNCERTAIN" ||
+    value === "needs_more_evidence"
+  )
+    return "text-amber-700";
+  if (value === "pending") return "text-slate-500";
+  return "text-slate-700";
+}
+
+function MetaItem({ label, value }: { label: string; value: string }) {
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded border px-2 py-0.5 text-xs ${baseClass}`}
-    >
-      <span className="text-[9px] font-semibold uppercase tracking-[0.12em] opacity-70">
+    <span className="inline-flex items-baseline gap-1.5">
+      <span className="font-semibold uppercase tracking-[0.06em] text-slate-600">
         {label}
       </span>
-      <span className={mono ? "font-mono text-[11px]" : "font-medium"}>
-        {value}
-      </span>
+      <span className="text-slate-700">{value}</span>
     </span>
   );
 }
 
-function DecisionCell({
+function TripleCell({
+  num,
   label,
   value,
-  tone,
+  sub,
+  withConnector,
 }: {
+  num: string;
   label: string;
   value: string;
-  tone: string;
+  sub: ReactNode;
+  withConnector?: boolean;
 }) {
   return (
-    <div className="px-3 py-2">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
-        {label}
-      </div>
-      <div className="mt-1">
+    <div className="relative bg-white px-4 py-3">
+      {withConnector && (
         <span
-          className={`inline-flex items-center rounded border px-2 py-0.5 text-xs font-semibold ${tone}`}
-        >
-          {value}
+          aria-hidden="true"
+          className="absolute -left-[7px] top-1/2 z-10 hidden h-3 w-3 -translate-y-1/2 rotate-45 border-r border-t border-slate-200 bg-white sm:block"
+        />
+      )}
+      <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-slate-500">
+        <span className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-[9px] text-slate-500">
+          {num}
         </span>
+        <span>{label}</span>
+      </div>
+      <div
+        className={`mt-1.5 text-lg font-semibold tracking-tight ${decisionValueTone(
+          value,
+        )}`}
+      >
+        {value}
+      </div>
+      <div className="mt-0.5 font-mono text-[11px] leading-snug text-slate-500">
+        {sub}
       </div>
     </div>
   );
@@ -160,93 +216,118 @@ export default function CaseWorkspaceClient({
     dispatch({ type: "RESET_CASE", initialCase });
   };
 
+  const headline = deriveHeadline(caseData);
+  const topRule = topReasonCode(caseData.ruleEvaluation.reasonCodes);
+  const topRouting = topReasonCode(caseData.ruleEvaluation.routingReasonCodes);
   const finalText = caseData.finalDecision?.decision ?? "pending";
-  const finalTone = caseData.finalDecision
-    ? statusTone(caseData.finalDecision.decision)
-    : "bg-slate-100 text-slate-500 border-slate-200";
-
-  const showCaseCContext =
-    caseData.id === "case-c" && !caseData.finalDecision;
 
   return (
     <div className="space-y-6">
-      <header className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0 space-y-1">
-            <h1 className="text-xl font-semibold text-slate-900">
-              {caseData.title}
+      <header className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+          <div className="min-w-0 space-y-3">
+            <p className="flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+              <span
+                aria-hidden="true"
+                className="inline-block h-0.5 w-5 rounded bg-amber-400"
+              />
+              {caseEyebrow(caseData)}
+            </p>
+            <h1 className="text-2xl font-semibold leading-tight tracking-tight text-slate-900 sm:text-3xl">
+              {headline.lead}
+              {headline.trail && (
+                <>
+                  {" "}
+                  <span className="font-medium text-slate-500">
+                    {headline.trail}
+                  </span>
+                </>
+              )}
             </h1>
-            <p className="text-sm text-slate-600">{caseData.description}</p>
-            {showCaseCContext && (
-              <p className="text-sm font-medium text-slate-800">
-                Rule decided REJECT. The case is waiting for human
-                confirmation.
-              </p>
-            )}
+            <p className="max-w-[60ch] text-sm leading-snug text-slate-600">
+              {caseData.description}
+            </p>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 font-mono text-[11px] text-slate-500">
+              <MetaItem label="status" value={caseData.currentStatus} />
+              <MetaItem label="stage" value={caseData.currentStage} />
+              <MetaItem label="risk" value={caseData.riskLevel} />
+              <MetaItem
+                label="policy"
+                value={caseData.ruleEvaluation.policyBundleVersion}
+              />
+              {caseData.llmAdvisory.status === "generated" && (
+                <>
+                  <MetaItem
+                    label="prompt"
+                    value={caseData.llmAdvisory.promptVersion}
+                  />
+                  <MetaItem
+                    label="model"
+                    value={caseData.llmAdvisory.modelVersion}
+                  />
+                </>
+              )}
+              {caseData.llmAdvisory.status === "skipped" && (
+                <MetaItem label="llm" value="skipped" />
+              )}
+              {caseData.llmAdvisory.status === "failed" && (
+                <>
+                  <MetaItem
+                    label="prompt"
+                    value={caseData.llmAdvisory.promptVersion}
+                  />
+                  <MetaItem
+                    label="model"
+                    value={caseData.llmAdvisory.modelVersion}
+                  />
+                  <MetaItem label="llm" value="failed" />
+                </>
+              )}
+            </div>
           </div>
           <button
             type="button"
             onClick={handleResetCase}
-            className="inline-flex shrink-0 items-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
+            className="inline-flex shrink-0 items-center self-start justify-self-start rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 hover:border-slate-300 hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 sm:justify-self-end"
           >
             Reset Case
           </button>
         </div>
 
-        <div className="mt-3 flex flex-wrap items-center gap-1.5">
-          <Chip
-            label="status"
-            value={caseData.currentStatus}
-            tone={statusTone(caseData.currentStatus)}
-          />
-          <Chip
-            label="stage"
-            value={caseData.currentStage}
-            tone={statusTone(caseData.currentStage)}
-          />
-          <Chip
-            label="risk"
-            value={caseData.riskLevel}
-            tone={riskTone(caseData.riskLevel)}
-          />
-          <Chip
-            label="policy"
-            value={<code>{caseData.ruleEvaluation.policyBundleVersion}</code>}
-            mono
-          />
-          {caseData.llmAdvisory.status === "generated" ? (
-            <>
-              <Chip
-                label="prompt"
-                value={<code>{caseData.llmAdvisory.promptVersion}</code>}
-                mono
-              />
-              <Chip
-                label="model"
-                value={<code>{caseData.llmAdvisory.modelVersion}</code>}
-                mono
-              />
-            </>
-          ) : (
-            <Chip label="llm" value={caseData.llmAdvisory.status} />
-          )}
-        </div>
-
-        <div className="mt-3 grid grid-cols-3 divide-x divide-slate-200 overflow-hidden rounded-md border border-slate-200">
-          <DecisionCell
+        <div className="mt-5 grid grid-cols-1 divide-y divide-slate-200 overflow-hidden rounded-lg border border-slate-200 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+          <TripleCell
+            num="01"
             label="Rule decision"
             value={caseData.ruleEvaluation.decision}
-            tone={statusTone(caseData.ruleEvaluation.decision)}
+            sub={
+              <>
+                <span className="font-semibold text-slate-700">
+                  {caseData.ruleEvaluation.ruleSetVersion}
+                </span>
+                {topRule && <> · {topRule}</>}
+              </>
+            }
           />
-          <DecisionCell
+          <TripleCell
+            num="02"
             label="Routing decision"
             value={caseData.ruleEvaluation.routingDecision}
-            tone={statusTone(caseData.ruleEvaluation.routingDecision)}
+            sub={
+              <>
+                <span className="font-semibold text-slate-700">
+                  {caseData.ruleEvaluation.policyBundleVersion}
+                </span>
+                {topRouting && <> · {topRouting}</>}
+              </>
+            }
+            withConnector
           />
-          <DecisionCell
+          <TripleCell
+            num="03"
             label="Final decision"
             value={finalText}
-            tone={finalTone}
+            sub={finalDecisionSub(caseData)}
+            withConnector
           />
         </div>
       </header>

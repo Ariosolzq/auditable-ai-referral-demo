@@ -67,10 +67,6 @@ type TileCopy = {
   detail: string;
 };
 
-// Render-only mapping that produces the displayed copy for each tile.
-// Reads from deriveStages output for case-specific details and from
-// caseData.evidenceRecords.length for the Input tile's count.
-// Does not change how stages are derived.
 function buildTileCopy(
   caseData: ReferralCase,
   stages: RailStage[],
@@ -105,25 +101,16 @@ function buildTileCopy(
   ];
 }
 
-function tileClass(state: RailState): string {
-  switch (state) {
-    case "done":
-      return "border-slate-200 bg-white";
-    case "active":
-      return "border-sky-500 bg-sky-50 ring-2 ring-sky-200";
-    case "pending":
-      return "border-slate-200 bg-slate-50/60";
-    case "skipped":
-      return "border-slate-200 bg-white";
-    case "failed":
-      return "border-rose-300 bg-rose-50/70";
-  }
+function phaseBgClass(state: RailState): string {
+  if (state === "active") return "bg-sky-50/70";
+  if (state === "failed") return "bg-rose-50/40";
+  return "";
 }
 
 function phaseLabelClass(state: RailState): string {
-  if (state === "pending" || state === "skipped") return "text-slate-400";
   if (state === "active") return "text-sky-700";
   if (state === "failed") return "text-rose-700";
+  if (state === "pending" || state === "skipped") return "text-slate-400";
   return "text-slate-500";
 }
 
@@ -194,48 +181,54 @@ export default function WorkflowProgressRail({ caseData }: Props) {
 
   return (
     <section
-      aria-label="Workflow progress"
-      className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm sm:p-4"
+      aria-label="Workflow phase progression"
+      className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
     >
-      <ol className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
+      <header className="flex flex-wrap items-baseline justify-between gap-2 border-b border-slate-100 bg-slate-50/60 px-4 py-2">
+        <h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-700">
+          Phase progression
+        </h2>
+        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-slate-500">
+          input → decision → advisory → governance → record
+        </span>
+      </header>
+      <ol className="grid grid-cols-1 divide-y divide-slate-100 lg:grid-cols-5 lg:divide-x lg:divide-y-0">
         {stages.map((stage, i) => {
           const icon = stateIcon(stage.state);
           const isActive = stage.state === "active";
           return (
             <li
               key={copy[i].phase}
-              className={`relative rounded-md border p-3 ${tileClass(stage.state)}`}
+              className={`relative px-4 py-3 ${phaseBgClass(stage.state)}`}
             >
-              {isActive && (
-                <>
-                  <span className="absolute -top-2.5 left-3 inline-flex items-center rounded bg-sky-600 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-white shadow-sm">
-                    You are here
-                  </span>
-                  <span
-                    aria-hidden="true"
-                    className="pointer-events-none absolute -bottom-[7px] left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-b border-r border-sky-500 bg-sky-50"
-                  />
-                </>
-              )}
-              <div className="flex items-center justify-between gap-2">
-                <span
-                  className={`text-[10px] font-semibold uppercase tracking-[0.16em] ${phaseLabelClass(stage.state)}`}
-                >
-                  {i + 1}. {copy[i].phase}
-                </span>
+              <div className="flex items-center gap-2">
                 <span
                   aria-label={icon.srLabel}
                   className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold ${icon.toneClass}`}
                 >
                   <span aria-hidden="true">{icon.glyph}</span>
                 </span>
+                <span
+                  className={`font-mono text-[10px] font-semibold uppercase tracking-[0.16em] ${phaseLabelClass(
+                    stage.state,
+                  )}`}
+                >
+                  0{i + 1} · {copy[i].phase}
+                </span>
+                {isActive && (
+                  <span className="ml-auto inline-flex items-center rounded bg-sky-600 px-1.5 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.12em] text-white">
+                    You are here
+                  </span>
+                )}
               </div>
               <p
-                className={`mt-1.5 text-sm font-semibold leading-tight ${titleClass(stage.state)}`}
+                className={`mt-2 text-sm font-semibold leading-tight ${titleClass(stage.state)}`}
               >
                 {copy[i].title}
               </p>
-              <p className={`mt-1 text-xs leading-tight ${detailClass(stage.state)}`}>
+              <p
+                className={`mt-0.5 font-mono text-[11px] leading-tight ${detailClass(stage.state)}`}
+              >
                 {copy[i].detail}
               </p>
             </li>
