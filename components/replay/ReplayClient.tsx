@@ -28,17 +28,10 @@ export default function ReplayClient({ comparisons, primaryCaseId }: Props) {
     defaultSelectedIdx(comparisons, primaryCaseId),
   );
   const selected = comparisons[selectedIdx];
-  const isPrimary =
-    primaryCaseId !== undefined && selected?.caseId === primaryCaseId;
 
   return (
     <div className="space-y-5">
-      {selected && (
-        <ReplayPromotionGate
-          comparison={selected}
-          label={isPrimary ? "Primary finding" : "Selected case"}
-        />
-      )}
+      {selected && <ReplayPromotionGate comparison={selected} />}
       <ReplaySummaryCards comparisons={comparisons} />
       <div className="space-y-3">
         <p className="text-[11px] italic text-slate-500">
