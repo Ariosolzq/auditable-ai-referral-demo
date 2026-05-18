@@ -6,19 +6,24 @@ type Props = {
   selectedAuditEventId?: string | null;
 };
 
-function Chip({
+function MetaChip({
   label,
   value,
+  accent = false,
 }: {
   label: string;
   value: ReactNode;
+  accent?: boolean;
 }) {
+  const valueClass = accent
+    ? "font-mono text-[11px] font-semibold text-sky-800"
+    : "font-mono text-[11px] text-slate-800";
   return (
-    <span className="inline-flex items-center gap-1.5 rounded border border-amber-200 bg-white px-2 py-0.5 text-xs">
-      <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-amber-700">
+    <span className="inline-flex items-center gap-1.5 rounded border border-slate-200 bg-white px-2 py-0.5">
+      <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.1em] text-slate-500">
         {label}
       </span>
-      <span className="font-medium text-slate-800">{value}</span>
+      <span className={valueClass}>{value}</span>
     </span>
   );
 }
@@ -85,90 +90,110 @@ export default function AuditEventPayloadPanel({
   auditEvents,
   selectedAuditEventId,
 }: Props) {
+  const total = auditEvents.length;
   const selected = selectedAuditEventId
     ? auditEvents.find((e) => e.id === selectedAuditEventId)
     : undefined;
   const event = selected ?? auditEvents[0];
 
+  if (!event) {
+    return (
+      <div className="flex min-h-[200px] items-center justify-center p-5">
+        <p className="max-w-[36ch] text-center text-sm leading-snug text-slate-500">
+          Select an audit event from the timeline to inspect its payload and
+          causation.
+        </p>
+      </div>
+    );
+  }
+
+  const indexNum = auditEvents.findIndex((e) => e.id === event.id) + 1;
+
   return (
-    <div className="p-4">
-      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
-          Selected event payload
+    <div className="space-y-3 p-5">
+      <header className="flex flex-wrap items-baseline justify-between gap-2">
+        <h3 className="flex items-baseline gap-2 text-base font-semibold tracking-tight text-slate-900">
+          <span>{event.eventType}</span>
+          <span className="font-mono text-[11px] font-normal text-slate-400">
+            &middot; event {indexNum} of {total}
+          </span>
         </h3>
-        <span className="text-[10px] italic uppercase tracking-[0.14em] text-slate-500">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-slate-600">
+          <span
+            aria-hidden="true"
+            className="inline-block h-1.5 w-1.5 rounded-full bg-amber-500"
+          />
           read-only
         </span>
+      </header>
+
+      <p className="rounded-md border border-sky-200 bg-sky-50/60 px-3.5 py-2.5 text-sm leading-snug text-sky-900">
+        <span className="font-semibold">Meaning &mdash;</span>{" "}
+        {describeAuditEvent(event)}
+      </p>
+
+      <p className="font-mono text-[11px] leading-snug text-slate-600">
+        {event.causationEventId ? (
+          <>
+            caused by{" "}
+            <span className="font-semibold text-slate-800">
+              {event.causationEventId}
+            </span>{" "}
+            <span aria-hidden="true" className="text-slate-300">
+              &rarr;
+            </span>{" "}
+            this event{" "}
+            <span className="font-semibold text-sky-800">{event.id}</span>
+          </>
+        ) : (
+          <>
+            <span className="font-semibold uppercase tracking-[0.1em] text-slate-500">
+              root event
+            </span>{" "}
+            &middot; this event{" "}
+            <span className="font-semibold text-sky-800">{event.id}</span>
+          </>
+        )}
+      </p>
+
+      <div className="flex flex-wrap gap-1.5">
+        <MetaChip label="actor" value={event.actor} />
+        <MetaChip
+          label="timestamp"
+          value={<code>{event.timestamp}</code>}
+        />
+        <MetaChip
+          label="correlation"
+          value={<code>{event.correlationId}</code>}
+        />
+        {event.causationEventId && (
+          <MetaChip
+            label="caused by"
+            value={<code>{event.causationEventId}</code>}
+            accent
+          />
+        )}
+        <MetaChip
+          label="workflow"
+          value={<code>{event.workflowInstanceId}</code>}
+        />
+        <MetaChip label="schema" value={event.schemaVersion} />
       </div>
-      {event ? (
-        <div className="space-y-3 text-sm">
-          <div className="rounded-md border border-slate-200 bg-slate-50/60 p-3">
-            <h4 className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-              What this event means
-            </h4>
-            <p className="text-sm leading-snug text-slate-800">
-              {describeAuditEvent(event)}
-            </p>
-          </div>
-          <div className="rounded-md border border-amber-300 border-l-4 border-l-amber-500 bg-amber-50/60 p-3">
-            <div className="flex flex-wrap items-center gap-1.5">
-              <Chip label="event" value={event.eventType} />
-              <Chip label="actor" value={event.actor} />
-              <Chip
-                label="timestamp"
-                value={
-                  <code className="font-mono text-[11px]">
-                    {event.timestamp}
-                  </code>
-                }
-              />
-              <Chip
-                label="correlation"
-                value={
-                  <code className="font-mono text-[11px]">
-                    {event.correlationId}
-                  </code>
-                }
-              />
-              {event.causationEventId && (
-                <Chip
-                  label="caused by"
-                  value={
-                    <code className="font-mono text-[11px]">
-                      {event.causationEventId}
-                    </code>
-                  }
-                />
-              )}
-              <Chip
-                label="workflow"
-                value={
-                  <code className="font-mono text-[11px]">
-                    {event.workflowInstanceId}
-                  </code>
-                }
-              />
-              <Chip label="schema" value={event.schemaVersion} />
-            </div>
-            <div className="mt-2 text-[11px] text-slate-600">
-              id:{" "}
-              <code className="font-mono text-slate-700">{event.id}</code>
-            </div>
-          </div>
-          <div>
-            <h4 className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-              Supporting detail · raw payload
-            </h4>
-            <pre className="max-h-[420px] overflow-auto rounded-md border border-slate-200 bg-slate-50 p-3 text-[11px] leading-relaxed text-slate-700">
-              {JSON.stringify(event.payload, null, 2)}
-            </pre>
-          </div>
-        </div>
-      ) : (
-        <p className="text-sm text-slate-500">
-          Select an audit event to view its payload.
-        </p>
-      )}
+
+      <details
+        open
+        className="overflow-hidden rounded-md border border-slate-200"
+      >
+        <summary className="flex cursor-pointer items-center justify-between gap-2 border-b border-slate-200 bg-slate-50/70 px-3.5 py-2 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 hover:bg-slate-100/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-sky-500">
+          <span>Supporting detail &middot; raw payload</span>
+          <span className="font-normal text-slate-400">
+            JSON &middot; read-only
+          </span>
+        </summary>
+        <pre className="max-h-[420px] overflow-auto bg-slate-900 px-4 py-3 font-mono text-[11px] leading-relaxed text-slate-200">
+          {JSON.stringify(event.payload, null, 2)}
+        </pre>
+      </details>
     </div>
   );
 }

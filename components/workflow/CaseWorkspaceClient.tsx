@@ -529,20 +529,36 @@ export default function CaseWorkspaceClient({
       </div>
 
       <div className="space-y-3">
-        <ZoneHeading letter="B" title="Audit Record" phase="record" />
+        <header className="space-y-1 px-1">
+          <h2 className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+            <span>B</span>
+            <span className="text-slate-300">&middot;</span>
+            <span>Audit Record</span>
+          </h2>
+          <p className="font-mono text-[11px] text-slate-500">
+            click any event &rarr; inspect its payload &amp; causation
+          </p>
+        </header>
         <section
           aria-label="Audit master-detail workspace"
           className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
         >
-          <header className="flex flex-wrap items-baseline justify-between gap-2 border-b border-slate-100 bg-slate-50/60 px-4 py-2">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
-              Audit master-detail
-            </h3>
-            <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-slate-500">
-              click an event → inspect its payload
+          <header className="flex flex-wrap items-baseline justify-between gap-2 border-b border-slate-100 bg-slate-50/60 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.14em] text-slate-500">
+            <span>
+              <span className="font-semibold text-slate-700">
+                {caseData.auditEvents.length}
+              </span>{" "}
+              event{caseData.auditEvents.length === 1 ? "" : "s"}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span
+                aria-hidden="true"
+                className="inline-block h-1.5 w-1.5 rounded-full bg-amber-500"
+              />
+              read-only
             </span>
           </header>
-          <div className="grid grid-cols-1 divide-y divide-slate-100 lg:grid-cols-[2fr_3fr] lg:divide-x lg:divide-y-0">
+          <div className="grid grid-cols-1 divide-y divide-slate-100 lg:grid-cols-[35%_65%] lg:divide-x lg:divide-y-0">
             <AuditTimeline
               auditEvents={caseData.auditEvents}
               selectedAuditEventId={selectedAuditEventId}
