@@ -145,24 +145,41 @@ export default function ReplayDiffPanel({ comparison }: Props) {
           ))}
         </ul>
 
-        <details className="mt-4 rounded-md border border-slate-200 bg-slate-50/40">
-          <summary className="cursor-pointer px-3 py-2 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 hover:bg-slate-100/60">
-            Raw replay output &middot; click to expand
+        <details className="mt-4 overflow-hidden rounded-md border border-slate-200 bg-slate-50/40">
+          <summary className="flex cursor-pointer flex-wrap items-center justify-between gap-2 px-3 py-2 hover:bg-slate-100/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-sky-500">
+            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-600">
+              Supporting detail &middot; raw replay output
+            </span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-slate-400">
+              JSON &middot; read-only &middot; selected case
+            </span>
           </summary>
-          <div className="grid grid-cols-1 gap-3 border-t border-slate-100 p-3 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 border-t border-slate-200 p-3 xl:grid-cols-2">
             <div>
-              <p className="mb-1 font-mono text-[10px] uppercase tracking-[0.14em] text-slate-400">
-                Baseline
-              </p>
-              <pre className="overflow-x-auto rounded-md border border-slate-200 bg-white p-3 font-mono text-[11px] leading-relaxed text-slate-600">
+              <div className="mb-1.5 flex flex-wrap items-baseline gap-2">
+                <span className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">
+                  Baseline
+                </span>
+                <code className="rounded border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[10px] text-slate-700">
+                  {comparison.baseline.policyVersion} +{" "}
+                  {comparison.baseline.promptVersion}
+                </code>
+              </div>
+              <pre className="overflow-x-auto rounded-md border border-slate-700 bg-slate-900 p-3 font-mono text-[11px] leading-relaxed text-slate-200">
                 {JSON.stringify(comparison.baseline, null, 2)}
               </pre>
             </div>
             <div>
-              <p className="mb-1 font-mono text-[10px] uppercase tracking-[0.14em] text-slate-400">
-                Candidate
-              </p>
-              <pre className="overflow-x-auto rounded-md border border-slate-200 bg-white p-3 font-mono text-[11px] leading-relaxed text-slate-600">
+              <div className="mb-1.5 flex flex-wrap items-baseline gap-2">
+                <span className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">
+                  Candidate
+                </span>
+                <code className="rounded border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[10px] text-slate-700">
+                  {comparison.candidate.policyVersion} +{" "}
+                  {comparison.candidate.promptVersion}
+                </code>
+              </div>
+              <pre className="overflow-x-auto rounded-md border border-slate-700 bg-slate-900 p-3 font-mono text-[11px] leading-relaxed text-slate-200">
                 {JSON.stringify(comparison.candidate, null, 2)}
               </pre>
             </div>
