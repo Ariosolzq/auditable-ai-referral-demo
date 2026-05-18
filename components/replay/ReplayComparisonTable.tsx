@@ -146,17 +146,25 @@ export default function ReplayComparisonTable({
               return (
                 <tr
                   key={c.caseId}
-                  className={`border-t border-slate-100 align-top ${rowTone}`}
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={isSelected}
+                  aria-label={`Inspect ${c.caseTitle}`}
+                  onClick={() => onSelectRow(idx)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onSelectRow(idx);
+                    }
+                  }}
+                  className={`cursor-pointer border-t border-slate-100 align-top transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-sky-500 ${rowTone}`}
                 >
                   <td className={`py-2 pr-3 ${firstCellAccent}`}>
-                    <button
-                      type="button"
-                      aria-pressed={isSelected}
-                      onClick={() => onSelectRow(idx)}
-                      className={`text-left text-xs font-medium hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 ${titleClass}`}
+                    <span
+                      className={`text-xs font-medium ${titleClass}`}
                     >
                       {c.caseTitle}
-                    </button>
+                    </span>
                   </td>
                   <td className="py-2 pr-3">
                     <Badge
