@@ -50,7 +50,7 @@ function NotesGroup({
           <code className="font-mono">{v2Label}</code>
         </span>
       </div>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-2">
         <NotesSection label={v1Label} items={v1Items} />
         <NotesSection label={v2Label} items={v2Items} />
       </div>

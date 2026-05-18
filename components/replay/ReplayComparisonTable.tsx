@@ -100,20 +100,20 @@ export default function ReplayComparisonTable({
   onSelectRow,
 }: Props) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-slate-50/60 p-3">
-      <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-          All cases &middot; supporting detail
+    <div className="space-y-3">
+      <header className="space-y-1 px-1">
+        <h2 className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+          <span>B</span>
+          <span className="text-slate-300">&middot;</span>
+          <span>All cases &middot; supporting detail</span>
         </h2>
-        <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-          click a row to inspect
-        </span>
-      </div>
-      <p className="mb-2 text-[11px] italic text-slate-500">
-        Use this table to switch cases and inspect their replay output.
-      </p>
-      <div className="overflow-x-auto">
-        <table className="w-full text-xs">
+        <p className="font-mono text-[11px] text-slate-500">
+          Use this table to switch cases and inspect their replay output.
+        </p>
+      </header>
+      <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-x-auto p-3">
+          <table className="w-full text-xs">
           <thead>
             <tr className="text-left text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
               <th className="py-1.5 pr-3">Case</th>
@@ -222,7 +222,8 @@ export default function ReplayComparisonTable({
             })}
           </tbody>
         </table>
-      </div>
-    </section>
+        </div>
+      </section>
+    </div>
   );
 }
