@@ -25,19 +25,8 @@ function Badge({
   );
 }
 
-function Chip({ label, value }: { label: string; value: ReactNode }) {
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded border border-slate-200 bg-white px-2 py-0.5 text-xs">
-      <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-500">
-        {label}
-      </span>
-      <span className="font-medium text-slate-700">{value}</span>
-    </span>
-  );
-}
-
 function statusTone(s: LLMAdvisory["status"]): string {
-  if (s === "generated") return "bg-sky-50 text-sky-800 border-sky-200";
+  if (s === "generated") return "bg-violet-50 text-violet-800 border-violet-200";
   if (s === "failed") return "bg-rose-50 text-rose-800 border-rose-200";
   return "bg-slate-100 text-slate-700 border-slate-200";
 }
@@ -58,26 +47,11 @@ function confidenceTone(c: "low" | "medium" | "high"): string {
 
 function rowClass(related: boolean): string {
   return related
-    ? "rounded-md border border-amber-300 border-l-4 border-l-amber-500 bg-amber-50/50 p-2.5 text-sm shadow-sm"
-    : "rounded-md border border-slate-100 bg-slate-50/50 p-2.5 text-sm";
+    ? "rounded-md border border-amber-200 border-l-2 border-l-amber-400 bg-amber-50/50 p-2.5 text-sm"
+    : "rounded-md border border-slate-100 border-l-2 border-l-slate-200 bg-slate-50/50 p-2.5 text-sm";
 }
 
-function BindingCue({ count }: { count: number }) {
-  return (
-    <span className="inline-flex items-center gap-1 rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-700">
-      <span
-        aria-hidden="true"
-        className="inline-block h-1.5 w-1.5 rounded-full bg-amber-500"
-      />
-      evidence-bound
-      <span className="rounded bg-amber-200 px-1 font-bold text-amber-800">
-        {count}
-      </span>
-    </span>
-  );
-}
-
-function SupportingEvidence({
+function CiteList({
   ids,
   onSelectEvidence,
 }: {
@@ -85,32 +59,87 @@ function SupportingEvidence({
   onSelectEvidence?: (ids: string[]) => void;
 }) {
   if (ids.length === 0) return null;
-  if (!onSelectEvidence) {
-    return (
-      <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
-        <BindingCue count={ids.length} />
-        {ids.map((id, i) => (
-          <span key={id}>
-            <code>{id}</code>
-            {i < ids.length - 1 ? ", " : ""}
-          </span>
-        ))}
-      </div>
-    );
-  }
   return (
-    <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
-      <BindingCue count={ids.length} />
-      {ids.map((id) => (
-        <button
-          key={id}
-          type="button"
-          onClick={() => onSelectEvidence(ids)}
-          className="inline-flex items-center rounded-md border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-700 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-amber-500"
+    <div className="mt-1.5 flex flex-wrap items-center gap-1">
+      <span className="font-mono text-[9px] font-bold uppercase tracking-[0.1em] text-amber-700">
+        cites
+      </span>
+      {ids.map((id) =>
+        onSelectEvidence ? (
+          <button
+            key={id}
+            type="button"
+            onClick={() => onSelectEvidence(ids)}
+            className="inline-flex items-center rounded border border-amber-200 bg-amber-50/70 px-1.5 py-0.5 font-mono text-[11px] text-amber-900 hover:border-amber-300 hover:bg-amber-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-amber-500"
+          >
+            {id}
+          </button>
+        ) : (
+          <code
+            key={id}
+            className="inline-flex items-center rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 font-mono text-[11px] text-slate-700"
+          >
+            {id}
+          </code>
+        ),
+      )}
+    </div>
+  );
+}
+
+function countRelated(
+  rows: Array<{ supportingEvidenceIds: string[] }>,
+  selected: Set<string>,
+): number {
+  if (selected.size === 0) return 0;
+  return rows.filter((r) =>
+    r.supportingEvidenceIds.some((id) => selected.has(id)),
+  ).length;
+}
+
+function PanelHeader({ citeCount }: { citeCount: number }) {
+  return (
+    <header className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+      <h2 className="flex items-baseline gap-2">
+        <span
+          aria-hidden="true"
+          className="inline-flex h-5 w-5 items-center justify-center rounded-md bg-violet-500 font-mono text-[10px] font-bold text-white"
         >
-          {id}
-        </button>
-      ))}
+          03
+        </span>
+        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-violet-700">
+          Context &middot; LLM advisory
+        </span>
+      </h2>
+      {citeCount > 0 && (
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-300 bg-violet-50 px-2 py-0.5 font-mono text-[10px] font-semibold text-violet-800">
+          <span
+            aria-hidden="true"
+            className="inline-block h-1.5 w-1.5 rounded-full bg-violet-500"
+          />
+          {citeCount} cite selection
+        </span>
+      )}
+    </header>
+  );
+}
+
+function AdvisoryNote() {
+  return (
+    <div className="mb-3 flex items-start gap-2 rounded-md border border-violet-200 bg-violet-50/60 px-3 py-2 text-xs leading-snug text-violet-900">
+      <span
+        aria-hidden="true"
+        className="mt-0.5 inline-flex h-3.5 w-3.5 flex-shrink-0 items-center justify-center rounded-sm bg-violet-600 font-mono text-[9px] font-bold text-white"
+      >
+        !
+      </span>
+      <p>
+        Advisory output. Cannot set{" "}
+        <code className="rounded-sm border border-violet-200 bg-white/70 px-1 font-mono text-[10px] text-violet-900">
+          finalDecision
+        </code>
+        . Every claim cites an evidence ID.
+      </p>
     </div>
   );
 }
@@ -124,18 +153,22 @@ export default function LLMAdvisoryCard({
   const isRelated = (ids: string[]): boolean =>
     selectedSet.size > 0 && ids.some((id) => selectedSet.has(id));
 
+  const citeCount =
+    llmAdvisory.status === "generated"
+      ? countRelated(llmAdvisory.evidenceSummary, selectedSet) +
+        countRelated(llmAdvisory.missingFieldAnalysis, selectedSet) +
+        countRelated(llmAdvisory.riskFlags, selectedSet)
+      : 0;
+
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">
-        Mock LLM Advisory
-      </h2>
-
-      <div className="mb-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-        Advisory only — this output does not change the final decision.
-      </div>
+      <PanelHeader citeCount={citeCount} />
+      <AdvisoryNote />
 
       <div className="mb-3 flex items-center justify-between gap-3 text-sm">
-        <span className="text-slate-500">Status</span>
+        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+          Status
+        </span>
         <Badge className={statusTone(llmAdvisory.status)}>
           {llmAdvisory.status}
         </Badge>
@@ -151,7 +184,7 @@ export default function LLMAdvisoryCard({
           </div>
           <div className="flex items-center justify-between gap-3">
             <span className="text-slate-500">Policy bundle version</span>
-            <code className="text-xs text-slate-700">
+            <code className="font-mono text-xs text-slate-700">
               {llmAdvisory.policyBundleVersion}
             </code>
           </div>
@@ -162,7 +195,7 @@ export default function LLMAdvisoryCard({
         <div className="space-y-1.5 text-sm">
           <div className="flex items-center justify-between gap-3">
             <span className="text-slate-500">Error code</span>
-            <code className="text-xs text-slate-700">
+            <code className="font-mono text-xs text-slate-700">
               {llmAdvisory.errorCode}
             </code>
           </div>
@@ -178,35 +211,32 @@ export default function LLMAdvisoryCard({
 
       {llmAdvisory.status === "generated" && (
         <>
-          <div className="mb-3 flex flex-wrap items-center gap-1.5">
-            <Chip
-              label="prompt"
-              value={
-                <code className="font-mono">{llmAdvisory.promptVersion}</code>
-              }
-            />
-            <Chip
-              label="model"
-              value={
-                <code className="font-mono">{llmAdvisory.modelVersion}</code>
-              }
-            />
-            <Chip
-              label="policy"
-              value={
-                <code className="font-mono">
-                  {llmAdvisory.policyBundleVersion}
-                </code>
-              }
-            />
-            <Chip
-              label="requires human review"
-              value={llmAdvisory.requiresHumanReview ? "true" : "false"}
-            />
+          <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[10px] text-slate-500">
+            <span>
+              <span className="font-semibold text-slate-600">prompt</span>{" "}
+              {llmAdvisory.promptVersion}
+            </span>
+            <span className="text-slate-300">&middot;</span>
+            <span>
+              <span className="font-semibold text-slate-600">model</span>{" "}
+              {llmAdvisory.modelVersion}
+            </span>
+            <span className="text-slate-300">&middot;</span>
+            <span>
+              <span className="font-semibold text-slate-600">policy</span>{" "}
+              {llmAdvisory.policyBundleVersion}
+            </span>
+            <span className="text-slate-300">&middot;</span>
+            <span>
+              <span className="font-semibold text-slate-600">
+                requires review
+              </span>{" "}
+              {llmAdvisory.requiresHumanReview ? "true" : "false"}
+            </span>
           </div>
 
           <div className="mb-2.5">
-            <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <h3 className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
               Evidence summary
             </h3>
             {llmAdvisory.evidenceSummary.length === 0 ? (
@@ -221,12 +251,14 @@ export default function LLMAdvisoryCard({
                         <Badge className={confidenceTone(s.confidence)}>
                           {s.confidence}
                         </Badge>
-                        <code className="text-xs text-slate-700">{s.id}</code>
+                        <code className="font-mono text-xs text-slate-700">
+                          {s.id}
+                        </code>
                       </div>
                       <p className="mt-1 text-xs leading-snug text-slate-700">
                         {s.summary}
                       </p>
-                      <SupportingEvidence
+                      <CiteList
                         ids={s.supportingEvidenceIds}
                         onSelectEvidence={onSelectEvidence}
                       />
@@ -238,7 +270,7 @@ export default function LLMAdvisoryCard({
           </div>
 
           <div className="mb-2.5">
-            <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <h3 className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
               Missing field analysis
             </h3>
             {llmAdvisory.missingFieldAnalysis.length === 0 ? (
@@ -253,12 +285,14 @@ export default function LLMAdvisoryCard({
                         <Badge className={severityTone(m.severity)}>
                           {m.severity}
                         </Badge>
-                        <code className="text-xs text-slate-700">{m.field}</code>
+                        <code className="font-mono text-xs text-slate-700">
+                          {m.field}
+                        </code>
                       </div>
                       <p className="mt-1 text-xs leading-snug text-slate-700">
                         {m.explanation}
                       </p>
-                      <SupportingEvidence
+                      <CiteList
                         ids={m.supportingEvidenceIds}
                         onSelectEvidence={onSelectEvidence}
                       />
@@ -270,7 +304,7 @@ export default function LLMAdvisoryCard({
           </div>
 
           <div className="mb-2.5">
-            <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <h3 className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
               Risk flags
             </h3>
             {llmAdvisory.riskFlags.length === 0 ? (
@@ -285,12 +319,14 @@ export default function LLMAdvisoryCard({
                         <Badge className={severityTone(r.severity)}>
                           {r.severity}
                         </Badge>
-                        <code className="text-xs text-slate-700">{r.code}</code>
+                        <code className="font-mono text-xs text-slate-700">
+                          {r.code}
+                        </code>
                       </div>
                       <p className="mt-1 text-xs leading-snug text-slate-700">
                         {r.explanation}
                       </p>
-                      <SupportingEvidence
+                      <CiteList
                         ids={r.supportingEvidenceIds}
                         onSelectEvidence={onSelectEvidence}
                       />
@@ -302,16 +338,16 @@ export default function LLMAdvisoryCard({
           </div>
 
           <div className="mb-2.5">
-            <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <h3 className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
               Reviewer notes
             </h3>
-            <p className="text-sm leading-snug text-slate-700">
+            <p className="rounded-md border border-slate-100 bg-slate-50/60 p-2.5 text-sm leading-snug text-slate-700">
               {llmAdvisory.reviewerNotes}
             </p>
           </div>
 
           <div>
-            <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <h3 className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
               Unsupported claims
             </h3>
             {llmAdvisory.unsupportedClaims.length === 0 ? (
@@ -334,14 +370,14 @@ export default function LLMAdvisoryCard({
       )}
 
       <details className="mt-3 rounded-md border border-slate-200 bg-slate-50/40">
-        <summary className="cursor-pointer px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 hover:bg-slate-100/60">
-          Supporting detail · advisory JSON
+        <summary className="cursor-pointer px-3 py-2 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 hover:bg-slate-100/60">
+          Supporting detail &middot; advisory JSON
         </summary>
         <div className="border-t border-slate-100 p-3">
-          <p className="mb-1.5 text-[10px] italic text-slate-400">
+          <p className="mb-1.5 font-mono text-[10px] italic text-slate-400">
             Mock advisory object. Not a real LLM API response.
           </p>
-          <pre className="max-h-[280px] overflow-auto rounded-md border border-slate-200 bg-white p-2 text-[10px] leading-relaxed text-slate-700">
+          <pre className="max-h-[280px] overflow-auto rounded-md border border-slate-200 bg-white p-2 font-mono text-[10px] leading-relaxed text-slate-700">
             {JSON.stringify(llmAdvisory, null, 2)}
           </pre>
         </div>
